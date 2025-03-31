@@ -9,8 +9,9 @@ import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.awt.FlowLayout;
-import java.util.Calendar;
 import javax.swing.JFrame;
+
+
 
 /**
  *
@@ -23,10 +24,10 @@ public class MainGUI extends javax.swing.JFrame {
      */
     public MainGUI() {
         initComponents();
-        jButton1.setBorderPainted(false);
-        jButton1.setContentAreaFilled(false);
-        jButton1.setFocusPainted(false);
-        jButton1.setOpaque(false);
+        startBtn.setBorderPainted(false);
+        startBtn.setContentAreaFilled(false);
+        startBtn.setFocusPainted(false);
+        startBtn.setOpaque(false);
         
         javax.swing.Timer timer = new javax.swing.Timer(1000, (java.awt.event.ActionEvent evt) -> {
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm:ss");
@@ -34,8 +35,12 @@ public class MainGUI extends javax.swing.JFrame {
             // clock.setText(sdf.format(now));
         });
         timer.start();
+        
 
     }
+
+    private String[] wallpapers = {"/GUI/Images/Wall1.jpg", "/GUI/Images/Wall2.jpg", "/GUI/Images/Wall3.jpg"};
+    private int currentWallpaper = 0;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -46,62 +51,111 @@ public class MainGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel2 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        timePane = new javax.swing.JTextPane();
-        jLabel1 = new javax.swing.JLabel();
+        Taskbar = new javax.swing.JPanel();
+        startBtn = new javax.swing.JButton();
+        calculatorBtn = new javax.swing.JButton();
+        notepadBtn = new javax.swing.JButton();
+        paintBtn = new javax.swing.JButton();
+        wallpaperBtn = new javax.swing.JButton();
+        Clock = new javax.swing.JTextField();
+        Wallpaper = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1366, 768));
-        setSize(new java.awt.Dimension(1366, 768));
+        setResizable(false);
+        setSize(new java.awt.Dimension(1368, 770));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel2.setBackground(new java.awt.Color(0, 0, 0));
-        jPanel2.setForeground(new java.awt.Color(51, 51, 51));
+        Taskbar.setBackground(new java.awt.Color(0, 0, 0));
+        Taskbar.setForeground(new java.awt.Color(255, 255, 255));
 
-        jButton1.setBackground(new java.awt.Color(0, 0, 0));
-        jButton1.setForeground(new java.awt.Color(0, 0, 0));
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/start.png"))); // NOI18N
-        jButton1.setToolTipText("");
-        jButton1.setBorder(null);
-        jButton1.setBorderPainted(false);
-        jButton1.setMaximumSize(new java.awt.Dimension(110, 111));
-        jButton1.setPreferredSize(new java.awt.Dimension(110, 111));
-        jButton1.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/startclick.png"))); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        startBtn.setBackground(new java.awt.Color(0, 0, 0));
+        startBtn.setForeground(new java.awt.Color(0, 0, 0));
+        startBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/start.png"))); // NOI18N
+        startBtn.setToolTipText("");
+        startBtn.setBorder(null);
+        startBtn.setBorderPainted(false);
+        startBtn.setMaximumSize(new java.awt.Dimension(110, 111));
+        startBtn.setPreferredSize(new java.awt.Dimension(110, 111));
+        startBtn.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/startclick.png"))); // NOI18N
+        startBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                startBtnActionPerformed(evt);
             }
         });
 
-        jScrollPane2.setViewportView(timePane);
+        calculatorBtn.setText("Calculator");
+        calculatorBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                calculatorBtnActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        notepadBtn.setText("Notepad");
+        notepadBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notepadBtnActionPerformed(evt);
+            }
+        });
+
+        paintBtn.setText("Paint");
+        paintBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                paintBtnActionPerformed(evt);
+            }
+        });
+
+        wallpaperBtn.setText("Change Wallpaper");
+        wallpaperBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                wallpaperBtnActionPerformed(evt);
+            }
+        });
+
+        Clock.setText("CLOCK HERE");
+
+        javax.swing.GroupLayout TaskbarLayout = new javax.swing.GroupLayout(Taskbar);
+        Taskbar.setLayout(TaskbarLayout);
+        TaskbarLayout.setHorizontalGroup(
+            TaskbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TaskbarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1209, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(47, 47, 47))
+                .addComponent(startBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(calculatorBtn)
+                .addGap(18, 18, 18)
+                .addComponent(notepadBtn)
+                .addGap(18, 18, 18)
+                .addComponent(paintBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 773, Short.MAX_VALUE)
+                .addComponent(wallpaperBtn)
+                .addGap(18, 18, 18)
+                .addComponent(Clock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        TaskbarLayout.setVerticalGroup(
+            TaskbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TaskbarLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(TaskbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(calculatorBtn)
+                    .addComponent(notepadBtn)
+                    .addComponent(wallpaperBtn)
+                    .addComponent(paintBtn)
+                    .addComponent(Clock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(14, 14, 14))
+            .addGroup(TaskbarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(startBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 720, 1370, 50));
+        getContentPane().add(Taskbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 720, 1370, 50));
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/wallpaper.jpg"))); // NOI18N
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1366, 768));
+        Wallpaper.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/Wall1.jpg"))); // NOI18N
+        Wallpaper.setMaximumSize(new java.awt.Dimension(1366, 770));
+        Wallpaper.setMinimumSize(new java.awt.Dimension(1366, 770));
+        Wallpaper.setPreferredSize(new java.awt.Dimension(1366, 770));
+        getContentPane().add(Wallpaper, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1370, 770));
 
         pack();
         setLocationRelativeTo(null);
@@ -112,12 +166,28 @@ public class MainGUI extends javax.swing.JFrame {
         // timeStamp = dateFormat.format(new Date());
     }
     
-    
-    
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startBtnActionPerformed
         // TODO add your handling code here:
 
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_startBtnActionPerformed
+
+    private void paintBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paintBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_paintBtnActionPerformed
+
+    private void notepadBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notepadBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_notepadBtnActionPerformed
+
+    private void calculatorBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_calculatorBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_calculatorBtnActionPerformed
+
+    private void wallpaperBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wallpaperBtnActionPerformed
+        // TODO add your handling code here:
+        currentWallpaper = (currentWallpaper + 1) % wallpapers.length;
+        Wallpaper.setIcon(new javax.swing.ImageIcon(getClass().getResource(wallpapers[currentWallpaper])));
+    }//GEN-LAST:event_wallpaperBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -155,10 +225,13 @@ public class MainGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextPane timePane;
+    private javax.swing.JTextField Clock;
+    private javax.swing.JPanel Taskbar;
+    private javax.swing.JLabel Wallpaper;
+    private javax.swing.JButton calculatorBtn;
+    private javax.swing.JButton notepadBtn;
+    private javax.swing.JButton paintBtn;
+    private javax.swing.JButton startBtn;
+    private javax.swing.JButton wallpaperBtn;
     // End of variables declaration//GEN-END:variables
 }
