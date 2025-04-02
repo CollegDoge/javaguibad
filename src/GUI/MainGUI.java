@@ -9,9 +9,8 @@ import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.awt.FlowLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-
-
 
 /**
  *
@@ -24,19 +23,37 @@ public class MainGUI extends javax.swing.JFrame {
      */
     public MainGUI() {
         initComponents();
-        startBtn.setBorderPainted(false);
-        startBtn.setContentAreaFilled(false);
-        startBtn.setFocusPainted(false);
-        startBtn.setOpaque(false);
         
-        javax.swing.Timer timer = new javax.swing.Timer(1000, (java.awt.event.ActionEvent evt) -> {
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm:ss");
-            java.util.Date now = new java.util.Date();
-            // clock.setText(sdf.format(now));
-        });
-        timer.start();
+        ImageIcon icon = new ImageIcon("C:\\Users\\22156\\OneDrive - northcote.school.nz\\Documents\\NetBeansProjects\\javaguibad\\src\\GUI\\Images\\desktop.png");
+        setIconImage(icon.getImage());
         
-
+        styleButton(startBtn);
+        styleButton(calculatorBtn);
+        styleButton(notepadBtn);
+        styleButton(paintBtn);
+        styleButton(musicBtn);
+        styleButton(wallpaperBtn);
+        
+        styleTextField(Clock);
+        
+    javax.swing.Timer timer = new javax.swing.Timer(1000, (java.awt.event.ActionEvent evt) -> {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        String currentTime = sdf.format(new Date());
+        Clock.setText(currentTime); // update clock
+    });
+    timer.start();
+    }
+    
+    private void styleButton(javax.swing.JButton button) { // Styling for the buttons
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setOpaque(false);
+    }
+    
+    private void styleTextField(javax.swing.JTextField textField) { // Styling for the text field
+        textField.setBorder(null);
+        textField.setFocusable(false);
     }
 
     private String[] wallpapers = {"/GUI/Images/Wall1.jpg", "/GUI/Images/Wall2.jpg", "/GUI/Images/Wall3.jpg"};
@@ -58,9 +75,11 @@ public class MainGUI extends javax.swing.JFrame {
         paintBtn = new javax.swing.JButton();
         wallpaperBtn = new javax.swing.JButton();
         Clock = new javax.swing.JTextField();
+        musicBtn = new javax.swing.JButton();
         Wallpaper = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Desktop");
         setResizable(false);
         setSize(new java.awt.Dimension(1368, 770));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -83,27 +102,36 @@ public class MainGUI extends javax.swing.JFrame {
             }
         });
 
-        calculatorBtn.setText("Calculator");
+        calculatorBtn.setBackground(new java.awt.Color(0, 0, 0));
+        calculatorBtn.setForeground(new java.awt.Color(255, 255, 255));
+        calculatorBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/calc.png"))); // NOI18N
         calculatorBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 calculatorBtnActionPerformed(evt);
             }
         });
 
-        notepadBtn.setText("Notepad");
+        notepadBtn.setBackground(new java.awt.Color(0, 0, 0));
+        notepadBtn.setForeground(new java.awt.Color(255, 255, 255));
+        notepadBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/notepad.png"))); // NOI18N
         notepadBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 notepadBtnActionPerformed(evt);
             }
         });
 
-        paintBtn.setText("Paint");
+        paintBtn.setBackground(new java.awt.Color(0, 0, 0));
+        paintBtn.setForeground(new java.awt.Color(255, 255, 255));
+        paintBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/paint.png"))); // NOI18N
         paintBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 paintBtnActionPerformed(evt);
             }
         });
 
+        wallpaperBtn.setBackground(new java.awt.Color(0, 0, 0));
+        wallpaperBtn.setForeground(new java.awt.Color(255, 255, 255));
+        wallpaperBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/wallpaper.png"))); // NOI18N
         wallpaperBtn.setText("Change Wallpaper");
         wallpaperBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -111,7 +139,26 @@ public class MainGUI extends javax.swing.JFrame {
             }
         });
 
-        Clock.setText("CLOCK HERE");
+        Clock.setEditable(false);
+        Clock.setBackground(new java.awt.Color(0, 0, 0));
+        Clock.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        Clock.setForeground(new java.awt.Color(255, 255, 255));
+        Clock.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        Clock.setText("Loading");
+        Clock.setAutoscrolls(false);
+        Clock.setMaximumSize(new java.awt.Dimension(68, 26));
+        Clock.setOpaque(true);
+        Clock.setPreferredSize(new java.awt.Dimension(68, 26));
+        Clock.setSelectionColor(new java.awt.Color(255, 255, 255));
+        Clock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ClockActionPerformed(evt);
+            }
+        });
+
+        musicBtn.setBackground(new java.awt.Color(0, 0, 0));
+        musicBtn.setForeground(new java.awt.Color(255, 255, 255));
+        musicBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/music.png"))); // NOI18N
 
         javax.swing.GroupLayout TaskbarLayout = new javax.swing.GroupLayout(Taskbar);
         Taskbar.setLayout(TaskbarLayout);
@@ -120,33 +167,37 @@ public class MainGUI extends javax.swing.JFrame {
             .addGroup(TaskbarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(startBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(calculatorBtn)
-                .addGap(18, 18, 18)
-                .addComponent(notepadBtn)
-                .addGap(18, 18, 18)
-                .addComponent(paintBtn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 773, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(calculatorBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(notepadBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(paintBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(musicBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 862, Short.MAX_VALUE)
                 .addComponent(wallpaperBtn)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(Clock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(16, 16, 16))
         );
         TaskbarLayout.setVerticalGroup(
             TaskbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(TaskbarLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(TaskbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(calculatorBtn)
-                    .addComponent(notepadBtn)
-                    .addComponent(wallpaperBtn)
-                    .addComponent(paintBtn)
-                    .addComponent(Clock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(14, 14, 14))
-            .addGroup(TaskbarLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, TaskbarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(startBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(TaskbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(musicBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(paintBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(notepadBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(calculatorBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(TaskbarLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(startBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(Clock, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, TaskbarLayout.createSequentialGroup()
+                        .addComponent(wallpaperBtn)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(14, 14, 14))
         );
 
         getContentPane().add(Taskbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 720, 1370, 50));
@@ -189,6 +240,10 @@ public class MainGUI extends javax.swing.JFrame {
         Wallpaper.setIcon(new javax.swing.ImageIcon(getClass().getResource(wallpapers[currentWallpaper])));
     }//GEN-LAST:event_wallpaperBtnActionPerformed
 
+    private void ClockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClockActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ClockActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -229,6 +284,7 @@ public class MainGUI extends javax.swing.JFrame {
     private javax.swing.JPanel Taskbar;
     private javax.swing.JLabel Wallpaper;
     private javax.swing.JButton calculatorBtn;
+    private javax.swing.JButton musicBtn;
     private javax.swing.JButton notepadBtn;
     private javax.swing.JButton paintBtn;
     private javax.swing.JButton startBtn;
