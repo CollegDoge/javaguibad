@@ -8,9 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.awt.FlowLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 
 /**
  *
@@ -24,6 +22,13 @@ public class MainGUI extends javax.swing.JFrame {
     public MainGUI() {
         initComponents();
         
+        javax.swing.Timer timer = new javax.swing.Timer(1000, (java.awt.event.ActionEvent evt) -> { // updates every second
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss"); // format for the clock
+            String currentTime = sdf.format(new Date()); // define clock
+            Clock.setText(currentTime); // clock
+        });
+        timer.start();
+        
         ImageIcon icon = new ImageIcon("C:\\Users\\22156\\OneDrive - northcote.school.nz\\Documents\\NetBeansProjects\\javaguibad\\src\\GUI\\Images\\desktop.png");
         setIconImage(icon.getImage());
         
@@ -36,12 +41,12 @@ public class MainGUI extends javax.swing.JFrame {
         
         styleTextField(Clock);
         
-    javax.swing.Timer timer = new javax.swing.Timer(1000, (java.awt.event.ActionEvent evt) -> {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        String currentTime = sdf.format(new Date());
-        Clock.setText(currentTime); // update clock
-    });
-    timer.start();
+        CalcTitlebar.addMouseMotionListener(new MouseMotionAdapter() {
+        public void mouseDragged(MouseEvent e) {
+            CalcTitlebar.setLocation(CalcTitlebar.getX() + e.getX(), CalcTitlebar.getY() + e.getY());
+            Calc.setLocation(CalcTitlebar.getX() + e.getX(), CalcTitlebar.getY() + e.getY());
+        }
+});
     }
     
     private void styleButton(javax.swing.JButton button) { // Styling for the buttons
@@ -68,6 +73,8 @@ public class MainGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        CalcTitlebar = new javax.swing.JPanel();
+        Calc = new javax.swing.JPanel();
         Taskbar = new javax.swing.JPanel();
         startBtn = new javax.swing.JButton();
         calculatorBtn = new javax.swing.JButton();
@@ -83,6 +90,34 @@ public class MainGUI extends javax.swing.JFrame {
         setResizable(false);
         setSize(new java.awt.Dimension(1368, 770));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        CalcTitlebar.setBackground(new java.awt.Color(51, 51, 51));
+
+        javax.swing.GroupLayout CalcTitlebarLayout = new javax.swing.GroupLayout(CalcTitlebar);
+        CalcTitlebar.setLayout(CalcTitlebarLayout);
+        CalcTitlebarLayout.setHorizontalGroup(
+            CalcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 200, Short.MAX_VALUE)
+        );
+        CalcTitlebarLayout.setVerticalGroup(
+            CalcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 30, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(CalcTitlebar, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 60, 200, 30));
+
+        javax.swing.GroupLayout CalcLayout = new javax.swing.GroupLayout(Calc);
+        Calc.setLayout(CalcLayout);
+        CalcLayout.setHorizontalGroup(
+            CalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 200, Short.MAX_VALUE)
+        );
+        CalcLayout.setVerticalGroup(
+            CalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 350, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(Calc, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, 200, 350));
 
         Taskbar.setBackground(new java.awt.Color(0, 0, 0));
         Taskbar.setForeground(new java.awt.Color(255, 255, 255));
@@ -194,10 +229,8 @@ public class MainGUI extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(startBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(Clock, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, TaskbarLayout.createSequentialGroup()
-                        .addComponent(wallpaperBtn)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(14, 14, 14))
+                    .addComponent(wallpaperBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         getContentPane().add(Taskbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 720, 1370, 50));
@@ -211,15 +244,9 @@ public class MainGUI extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-        
-    private void updateDateTime() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-        // timeStamp = dateFormat.format(new Date());
-    }
-    
+
     private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startBtnActionPerformed
         // TODO add your handling code here:
-
     }//GEN-LAST:event_startBtnActionPerformed
 
     private void paintBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paintBtnActionPerformed
@@ -235,7 +262,6 @@ public class MainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_calculatorBtnActionPerformed
 
     private void wallpaperBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wallpaperBtnActionPerformed
-        // TODO add your handling code here:
         currentWallpaper = (currentWallpaper + 1) % wallpapers.length;
         Wallpaper.setIcon(new javax.swing.ImageIcon(getClass().getResource(wallpapers[currentWallpaper])));
     }//GEN-LAST:event_wallpaperBtnActionPerformed
@@ -280,6 +306,8 @@ public class MainGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel Calc;
+    private javax.swing.JPanel CalcTitlebar;
     private javax.swing.JTextField Clock;
     private javax.swing.JPanel Taskbar;
     private javax.swing.JLabel Wallpaper;
