@@ -19,6 +19,9 @@ public class MainGUI extends javax.swing.JFrame {
     /**
      * Creates new form MainGUI
      */
+    
+    private Point initialClick;
+    
     public MainGUI() {
         initComponents();
         
@@ -41,12 +44,40 @@ public class MainGUI extends javax.swing.JFrame {
         
         styleTextField(Clock);
         
+        // to do: Apply calculator drag logic to all apps
+        //        Make apps closeable
+        //        Check if app is open, raise app isntead of opening if its open.
+        //        Make apps frfr
+        
+        CalcTitlebar.addMouseListener(new MouseAdapter() { // adds mouse checking to calculator
+            @Override
+            public void mousePressed(MouseEvent e) {
+                initialClick = e.getPoint();
+            }
+        });
+
         CalcTitlebar.addMouseMotionListener(new MouseMotionAdapter() {
-        public void mouseDragged(MouseEvent e) {
-            CalcTitlebar.setLocation(CalcTitlebar.getX() + e.getX(), CalcTitlebar.getY() + e.getY());
-            Calc.setLocation(CalcTitlebar.getX() + e.getX(), CalcTitlebar.getY() + e.getY());
-        }
-});
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int thisX = Calculator.getLocation().x; // gets X and Y
+                int thisY = Calculator.getLocation().y;
+
+                int xMoved = e.getX() - initialClick.x; // checks mouse movement when held
+                int yMoved = e.getY() - initialClick.y;
+
+                int X = thisX + xMoved; // gets new position
+                int Y = thisY + yMoved;
+                
+                int parentWidth = getContentPane().getWidth(); // make sure it doesnt go off screen
+                int parentHeight = getContentPane().getHeight();
+                int calcWidth = Calculator.getWidth();
+                int calcHeight = Calculator.getHeight();
+                X = Math.max(0, Math.min(X, parentWidth - calcWidth));
+                Y = Math.max(0, Math.min(Y, parentHeight - calcHeight));
+
+                Calculator.setLocation(X, Y); // moves calculator
+            }
+        });
     }
     
     private void styleButton(javax.swing.JButton button) { // Styling for the buttons
@@ -73,8 +104,30 @@ public class MainGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        Calculator = new javax.swing.JPanel();
         CalcTitlebar = new javax.swing.JPanel();
-        Calc = new javax.swing.JPanel();
+        CalcTitle = new javax.swing.JLabel();
+        CalcClose = new javax.swing.JButton();
+        CalcField = new javax.swing.JTextField();
+        CalcEquals = new javax.swing.JButton();
+        CalcClear = new javax.swing.JButton();
+        CalcPlus = new javax.swing.JButton();
+        CalcMinus = new javax.swing.JButton();
+        CalcMulti = new javax.swing.JButton();
+        CalcDiv = new javax.swing.JButton();
+        CalcMod = new javax.swing.JButton();
+        CalcPeriod = new javax.swing.JButton();
+        CalcPower = new javax.swing.JButton();
+        Calc0 = new javax.swing.JButton();
+        Calc1 = new javax.swing.JButton();
+        Calc2 = new javax.swing.JButton();
+        Calc3 = new javax.swing.JButton();
+        Calc4 = new javax.swing.JButton();
+        Calc5 = new javax.swing.JButton();
+        Calc6 = new javax.swing.JButton();
+        Calc7 = new javax.swing.JButton();
+        Calc8 = new javax.swing.JButton();
+        Calc9 = new javax.swing.JButton();
         Taskbar = new javax.swing.JPanel();
         startBtn = new javax.swing.JButton();
         calculatorBtn = new javax.swing.JButton();
@@ -91,33 +144,178 @@ public class MainGUI extends javax.swing.JFrame {
         setSize(new java.awt.Dimension(1368, 770));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        Calculator.setBackground(new java.awt.Color(102, 102, 102));
+
         CalcTitlebar.setBackground(new java.awt.Color(51, 51, 51));
+        CalcTitlebar.setForeground(new java.awt.Color(51, 51, 51));
+
+        CalcTitle.setBackground(new java.awt.Color(255, 255, 255));
+        CalcTitle.setForeground(new java.awt.Color(255, 255, 255));
+        CalcTitle.setText("Calculator");
+
+        CalcClose.setText("X");
 
         javax.swing.GroupLayout CalcTitlebarLayout = new javax.swing.GroupLayout(CalcTitlebar);
         CalcTitlebar.setLayout(CalcTitlebarLayout);
         CalcTitlebarLayout.setHorizontalGroup(
             CalcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 200, Short.MAX_VALUE)
+            .addGroup(CalcTitlebarLayout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(CalcTitle)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(CalcClose, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         CalcTitlebarLayout.setVerticalGroup(
             CalcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 30, Short.MAX_VALUE)
+            .addGroup(CalcTitlebarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(CalcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(CalcTitle)
+                    .addComponent(CalcClose))
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
-        getContentPane().add(CalcTitlebar, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 60, 200, 30));
+        CalcEquals.setText("=");
 
-        javax.swing.GroupLayout CalcLayout = new javax.swing.GroupLayout(Calc);
-        Calc.setLayout(CalcLayout);
-        CalcLayout.setHorizontalGroup(
-            CalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 200, Short.MAX_VALUE)
+        CalcClear.setText("Clear");
+
+        CalcPlus.setText("+");
+
+        CalcMinus.setText("-");
+
+        CalcMulti.setText("X");
+
+        CalcDiv.setText("/");
+
+        CalcMod.setText("M");
+
+        CalcPeriod.setText(".");
+
+        CalcPower.setText("^");
+
+        Calc0.setText("0");
+
+        Calc1.setText("1");
+
+        Calc2.setText("2");
+
+        Calc3.setText("3");
+
+        Calc4.setText("4");
+
+        Calc5.setText("5");
+        Calc5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Calc5ActionPerformed(evt);
+            }
+        });
+
+        Calc6.setText("6");
+
+        Calc7.setText("7");
+
+        Calc8.setText("8");
+
+        Calc9.setText("9");
+
+        javax.swing.GroupLayout CalculatorLayout = new javax.swing.GroupLayout(Calculator);
+        Calculator.setLayout(CalculatorLayout);
+        CalculatorLayout.setHorizontalGroup(
+            CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(CalcTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(CalculatorLayout.createSequentialGroup()
+                        .addComponent(CalcField)
+                        .addGap(18, 18, 18)
+                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(CalcMod, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(CalcMinus, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+                            .addComponent(CalcPlus, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+                            .addComponent(CalcMulti, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(CalcDiv, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(CalculatorLayout.createSequentialGroup()
+                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(CalculatorLayout.createSequentialGroup()
+                                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(Calc0, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(Calc7, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(Calc1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addComponent(Calc4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(Calc2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(CalcPeriod, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(Calc5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(Calc8, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(CalcClear, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(CalculatorLayout.createSequentialGroup()
+                                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(Calc3, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+                                    .addComponent(CalcPower, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(Calc9, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+                                    .addComponent(Calc6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(0, 79, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(CalcEquals, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addGap(16, 16, 16))
         );
-        CalcLayout.setVerticalGroup(
-            CalcLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 350, Short.MAX_VALUE)
+        CalculatorLayout.setVerticalGroup(
+            CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CalculatorLayout.createSequentialGroup()
+                .addComponent(CalcTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(CalcMod, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(CalcField, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(CalculatorLayout.createSequentialGroup()
+                            .addComponent(CalcDiv, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(CalcMulti, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(CalcMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(CalcPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(CalculatorLayout.createSequentialGroup()
+                            .addComponent(Calc7, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(112, 112, 112)
+                            .addComponent(Calc0, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createSequentialGroup()
+                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Calc8, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Calc9, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Calc5, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Calc4, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Calc6, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Calc2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Calc1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(CalcPeriod, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createSequentialGroup()
+                        .addComponent(Calc3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(CalcPower, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(28, 28, 28)
+                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(CalcClear, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(CalcEquals, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
-        getContentPane().add(Calc, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, 200, 350));
+        getContentPane().add(Calculator, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 260, 400));
 
         Taskbar.setBackground(new java.awt.Color(0, 0, 0));
         Taskbar.setForeground(new java.awt.Color(255, 255, 255));
@@ -247,6 +445,7 @@ public class MainGUI extends javax.swing.JFrame {
 
     private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startBtnActionPerformed
         // TODO add your handling code here:
+        
     }//GEN-LAST:event_startBtnActionPerformed
 
     private void paintBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paintBtnActionPerformed
@@ -269,6 +468,10 @@ public class MainGUI extends javax.swing.JFrame {
     private void ClockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClockActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_ClockActionPerformed
+
+    private void Calc5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Calc5ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Calc5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -306,8 +509,30 @@ public class MainGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel Calc;
+    private javax.swing.JButton Calc0;
+    private javax.swing.JButton Calc1;
+    private javax.swing.JButton Calc2;
+    private javax.swing.JButton Calc3;
+    private javax.swing.JButton Calc4;
+    private javax.swing.JButton Calc5;
+    private javax.swing.JButton Calc6;
+    private javax.swing.JButton Calc7;
+    private javax.swing.JButton Calc8;
+    private javax.swing.JButton Calc9;
+    private javax.swing.JButton CalcClear;
+    private javax.swing.JButton CalcClose;
+    private javax.swing.JButton CalcDiv;
+    private javax.swing.JButton CalcEquals;
+    private javax.swing.JTextField CalcField;
+    private javax.swing.JButton CalcMinus;
+    private javax.swing.JButton CalcMod;
+    private javax.swing.JButton CalcMulti;
+    private javax.swing.JButton CalcPeriod;
+    private javax.swing.JButton CalcPlus;
+    private javax.swing.JButton CalcPower;
+    private javax.swing.JLabel CalcTitle;
     private javax.swing.JPanel CalcTitlebar;
+    private javax.swing.JPanel Calculator;
     private javax.swing.JTextField Clock;
     private javax.swing.JPanel Taskbar;
     private javax.swing.JLabel Wallpaper;
