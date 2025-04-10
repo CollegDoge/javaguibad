@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.*;
 import javax.swing.ImageIcon;
 
 /**
@@ -42,42 +43,55 @@ public class MainGUI extends javax.swing.JFrame {
         styleButton(musicBtn);
         styleButton(wallpaperBtn);
         
+        makeDraggable(Calculator, CalcTitlebar);
+        makeDraggable(Player, PlayerTitlebar);
+        makeDraggable(Notepad, NotepadTitlebar);
+        
         styleTextField(Clock);
-        
-        // to do: Apply calculator drag logic to all apps
-        //        Make apps closeable
-        //        Check if app is open, raise app isntead of opening if its open.
-        //        Make apps frfr
-        
-        CalcTitlebar.addMouseListener(new MouseAdapter() { // adds mouse checking to calculator
-            @Override
-            public void mousePressed(MouseEvent e) {
-                initialClick = e.getPoint();
+    }
+    
+     // DRAGGING
+    
+    private void makeDraggable(JPanel window, JPanel titlebar) {
+    final Point[] initialClick = { null }; // one Point per window
+
+    titlebar.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            initialClick[0] = e.getPoint();
+            Container parent = window.getParent();
+            if (parent != null) {
+                parent.setComponentZOrder(window, 0);
+                parent.revalidate();
+                parent.repaint();
             }
-        });
+        }
+    });
 
-        CalcTitlebar.addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                int thisX = Calculator.getLocation().x; // gets X and Y
-                int thisY = Calculator.getLocation().y;
+    titlebar.addMouseMotionListener(new MouseMotionAdapter() {
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            if (initialClick[0] == null) return;
 
-                int xMoved = e.getX() - initialClick.x; // checks mouse movement when held
-                int yMoved = e.getY() - initialClick.y;
+            int thisX = window.getLocation().x;
+            int thisY = window.getLocation().y;
 
-                int X = thisX + xMoved; // gets new position
-                int Y = thisY + yMoved;
-                
-                int parentWidth = getContentPane().getWidth(); // make sure it doesnt go off screen
-                int parentHeight = getContentPane().getHeight();
-                int calcWidth = Calculator.getWidth();
-                int calcHeight = Calculator.getHeight();
-                X = Math.max(0, Math.min(X, parentWidth - calcWidth));
-                Y = Math.max(0, Math.min(Y, parentHeight - calcHeight));
+            int xMoved = e.getX() - initialClick[0].x;
+            int yMoved = e.getY() - initialClick[0].y;
 
-                Calculator.setLocation(X, Y); // moves calculator
-            }
-        });
+            int X = thisX + xMoved;
+            int Y = thisY + yMoved;
+
+            int parentWidth = getContentPane().getWidth();
+            int parentHeight = getContentPane().getHeight();
+            int w = window.getWidth();
+            int h = window.getHeight();
+            X = Math.max(0, Math.min(X, parentWidth - w));
+            Y = Math.max(0, Math.min(Y, parentHeight - h));
+
+            window.setLocation(X, Y);
+        }
+    });
     }
     
     private void styleButton(javax.swing.JButton button) { // Styling for the buttons
@@ -104,6 +118,23 @@ public class MainGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        Notepad = new javax.swing.JPanel();
+        NotepadTitlebar = new javax.swing.JPanel();
+        NotepadTitle = new javax.swing.JLabel();
+        NotepadClose = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        Player = new javax.swing.JPanel();
+        PlayerTitlebar = new javax.swing.JPanel();
+        PlayerTitle = new javax.swing.JLabel();
+        PlayerClose = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         Calculator = new javax.swing.JPanel();
         CalcTitlebar = new javax.swing.JPanel();
         CalcTitle = new javax.swing.JLabel();
@@ -143,6 +174,164 @@ public class MainGUI extends javax.swing.JFrame {
         setResizable(false);
         setSize(new java.awt.Dimension(1368, 770));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        Notepad.setBackground(new java.awt.Color(102, 102, 102));
+        Notepad.setForeground(new java.awt.Color(102, 102, 102));
+
+        NotepadTitlebar.setBackground(new java.awt.Color(51, 51, 51));
+        NotepadTitlebar.setForeground(new java.awt.Color(51, 51, 51));
+
+        NotepadTitle.setBackground(new java.awt.Color(255, 255, 255));
+        NotepadTitle.setForeground(new java.awt.Color(255, 255, 255));
+        NotepadTitle.setText("Notepad");
+
+        NotepadClose.setText("X");
+
+        javax.swing.GroupLayout NotepadTitlebarLayout = new javax.swing.GroupLayout(NotepadTitlebar);
+        NotepadTitlebar.setLayout(NotepadTitlebarLayout);
+        NotepadTitlebarLayout.setHorizontalGroup(
+            NotepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(NotepadTitlebarLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(NotepadTitle)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(NotepadClose, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        NotepadTitlebarLayout.setVerticalGroup(
+            NotepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(NotepadTitlebarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(NotepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(NotepadTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
+                    .addComponent(NotepadClose))
+                .addContainerGap())
+        );
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        jButton1.setText("Open");
+
+        jButton2.setText("Save File");
+
+        jButton3.setText("Pin To Desktop");
+
+        javax.swing.GroupLayout NotepadLayout = new javax.swing.GroupLayout(Notepad);
+        Notepad.setLayout(NotepadLayout);
+        NotepadLayout.setHorizontalGroup(
+            NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(NotepadTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(NotepadLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(NotepadLayout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 193, Short.MAX_VALUE)
+                        .addComponent(jButton3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2)))
+                .addContainerGap())
+        );
+        NotepadLayout.setVerticalGroup(
+            NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(NotepadLayout.createSequentialGroup()
+                .addComponent(NotepadTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2)
+                    .addComponent(jButton3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        getContentPane().add(Notepad, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 30, 480, 320));
+
+        Player.setBackground(new java.awt.Color(102, 102, 102));
+        Player.setForeground(new java.awt.Color(102, 102, 102));
+
+        PlayerTitlebar.setBackground(new java.awt.Color(51, 51, 51));
+        PlayerTitlebar.setForeground(new java.awt.Color(0, 0, 0));
+
+        PlayerTitle.setBackground(new java.awt.Color(255, 255, 255));
+        PlayerTitle.setForeground(new java.awt.Color(255, 255, 255));
+        PlayerTitle.setText("Music Player");
+
+        PlayerClose.setText("X");
+
+        javax.swing.GroupLayout PlayerTitlebarLayout = new javax.swing.GroupLayout(PlayerTitlebar);
+        PlayerTitlebar.setLayout(PlayerTitlebarLayout);
+        PlayerTitlebarLayout.setHorizontalGroup(
+            PlayerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PlayerTitlebarLayout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addComponent(PlayerTitle)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(PlayerClose, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16))
+        );
+        PlayerTitlebarLayout.setVerticalGroup(
+            PlayerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PlayerTitlebarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PlayerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(PlayerTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
+                    .addComponent(PlayerClose))
+                .addContainerGap())
+        );
+
+        jLabel1.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("No Song Playing");
+
+        jLabel2.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("No Artist");
+
+        jLabel3.setBackground(new java.awt.Color(0, 0, 0));
+        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/test.png"))); // NOI18N
+
+        jLabel4.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("No Release");
+
+        javax.swing.GroupLayout PlayerLayout = new javax.swing.GroupLayout(Player);
+        Player.setLayout(PlayerLayout);
+        PlayerLayout.setHorizontalGroup(
+            PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(PlayerTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PlayerLayout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel4))
+                .addGap(56, 56, 56))
+        );
+        PlayerLayout.setVerticalGroup(
+            PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PlayerLayout.createSequentialGroup()
+                .addComponent(PlayerTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PlayerLayout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel4))
+                    .addComponent(jLabel3))
+                .addGap(0, 342, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(Player, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 20, 270, 500));
 
         Calculator.setBackground(new java.awt.Color(102, 102, 102));
 
@@ -534,9 +723,26 @@ public class MainGUI extends javax.swing.JFrame {
     private javax.swing.JPanel CalcTitlebar;
     private javax.swing.JPanel Calculator;
     private javax.swing.JTextField Clock;
+    private javax.swing.JPanel Notepad;
+    private javax.swing.JButton NotepadClose;
+    private javax.swing.JLabel NotepadTitle;
+    private javax.swing.JPanel NotepadTitlebar;
+    private javax.swing.JPanel Player;
+    private javax.swing.JButton PlayerClose;
+    private javax.swing.JLabel PlayerTitle;
+    private javax.swing.JPanel PlayerTitlebar;
     private javax.swing.JPanel Taskbar;
     private javax.swing.JLabel Wallpaper;
     private javax.swing.JButton calculatorBtn;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JButton musicBtn;
     private javax.swing.JButton notepadBtn;
     private javax.swing.JButton paintBtn;
