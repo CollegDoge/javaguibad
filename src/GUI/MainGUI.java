@@ -272,14 +272,14 @@ public class MainGUI extends javax.swing.JFrame {
                 .addComponent(PlayerTitle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(PlayerClose, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(16, 16, 16))
+                .addContainerGap())
         );
         PlayerTitlebarLayout.setVerticalGroup(
             PlayerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PlayerTitlebarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(PlayerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(PlayerTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
+                    .addComponent(PlayerTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(PlayerClose))
                 .addContainerGap())
         );
@@ -331,7 +331,7 @@ public class MainGUI extends javax.swing.JFrame {
                 .addGap(0, 342, Short.MAX_VALUE))
         );
 
-        getContentPane().add(Player, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 20, 270, 500));
+        getContentPane().add(Player, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 20, 290, 500));
 
         Calculator.setBackground(new java.awt.Color(102, 102, 102));
 
