@@ -11,32 +11,45 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.ImageIcon;
-import javax.imageio.ImageIO;
+import java.io.*;
 import java.io.IOException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // MEDIA PLAYER
 import java.io.File;
+import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 
+// NOTEPAD
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.nio.file.*;
+import java.util.List;
+
+// CALCULATOR
 
 /**
  *
  * @author 22156
  */
-public class MainGUI extends javax.swing.JFrame {
-
-    /**
-     * Creates new form MainGUI
-     */
-    
+public class MainGUI extends javax.swing.JFrame {    
     private Clip clip;
+    
+    // MUSIC
     private int currentTrackIndex = 0;
     private String currentAlbum = "";
     
+    // NOTEPAD
+    private DefaultTableModel tableModel;
+    private File notesDir = new File("notes");
+    
     public MainGUI() {
         initComponents();
+        // NOTEPAD
+        if (!notesDir.exists()) notesDir.mkdir(); // creates notes directory
+        tableModel = (DefaultTableModel) notepadSelectTable.getModel(); // gets tableModel
         
         // CLOCK
         javax.swing.Timer timer = new javax.swing.Timer(1000, (java.awt.event.ActionEvent evt) -> { // updates every second
@@ -44,10 +57,10 @@ public class MainGUI extends javax.swing.JFrame {
             String currentTime = sdf.format(new Date()); // define clock
             Clock.setText(currentTime); // clock
         });
-        timer.start();
+        timer.start(); // begins clock
         
         // ICON
-        ImageIcon icon = new ImageIcon("C:\\Users\\22156\\OneDrive - northcote.school.nz\\Documents\\NetBeansProjects\\javaguibad\\src\\GUI\\Images\\desktop.png");
+        ImageIcon icon = new ImageIcon("src/GUI/Images/desktop.png"); // cant test since my desktop environment doesnt render window icons
         setIconImage(icon.getImage());
         
         // STYLING
@@ -63,9 +76,10 @@ public class MainGUI extends javax.swing.JFrame {
         makeDraggable(Player, playerTitlebar);
         makeDraggable(Notepad, notepadTitlebar);
         
-        // STARTUP
+        // STARTUP (initially hides all windows, i know kinda dumb)
         Calculator.setVisible(false);
         Notepad.setVisible(false);
+        notepadSelector.setVisible(false);
         Player.setVisible(false);
         playerSelector.setVisible(false);
         startMenu.setVisible(false);
@@ -82,15 +96,14 @@ public class MainGUI extends javax.swing.JFrame {
      // DRAGGING
     
     private void makeDraggable(JPanel window, JPanel titlebar) {
-    final Point[] initialClick = { null }; // one Point per window
+    final Point[] initialClick = { null }; // one point per window
 
-    titlebar.addMouseListener(new MouseAdapter() {
-        @Override
+    titlebar.addMouseListener(new MouseAdapter() { // looks for mouse 
         public void mousePressed(MouseEvent e) {
-            initialClick[0] = e.getPoint();
+            initialClick[0] = e.getPoint(); // gets click point
             Container parent = window.getParent();
             if (parent != null) {
-                parent.setComponentZOrder(window, 0);
+                parent.setComponentZOrder(window, 0); // moves to front (kinda buggy)
                 parent.revalidate();
                 parent.repaint();
             }
@@ -122,31 +135,31 @@ public class MainGUI extends javax.swing.JFrame {
     });
     }
     
-    private void styleButton(javax.swing.JButton button) { // Styling for the buttons
+    private void styleButton(javax.swing.JButton button) { // Styling for some buttons
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
         button.setOpaque(false);
     }
     
-    private void styleTextField(javax.swing.JTextField textField) { // Styling for the text field
+    private void styleTextField(javax.swing.JTextField textField) { // Styling for some text fields
         textField.setBorder(null);
         textField.setFocusable(false);
     }
     
-    // Music Player
+    // PLAYER 
+    
     private void playSound(String filePath) {
         try {
-            // Stop and close previous clip if it exists
-            if (clip != null && clip.isRunning()) {
+            if (clip != null && clip.isRunning()) { // stops previous song
                 clip.stop();
                 clip.close();
             }
-
+            
             File soundFile = new File(filePath);
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile); // AudioInputStream getting file
 
-            clip = AudioSystem.getClip();
+            clip = AudioSystem.getClip(); // starts song
             clip.open(audioStream);
             clip.start();
 
@@ -158,38 +171,100 @@ public class MainGUI extends javax.swing.JFrame {
     private void playCurrentTrack() {
         String[] selectedAlbum;
 
-        if (currentAlbum.equals("Random Music 1")) {
+        if (currentAlbum.equals("Random Music 1")) { // checks currentAlbum (defined on button press)
             selectedAlbum = album1;
         } else if (currentAlbum.equals("Random Music 2")) {
             selectedAlbum = album2;
         } else {
-            playerTitle.setText("No Album Selected!!");
+            playerTitle.setText("No Album Selected!!"); // if ur silly and somehow dont select an album
             return;
         }
 
         if (currentTrackIndex >= 0 && currentTrackIndex < selectedAlbum.length) {
             playSound(selectedAlbum[currentTrackIndex]);
-            // Optional: set the title
             String path = selectedAlbum[currentTrackIndex];
             playerTitle.setText(path.substring(path.lastIndexOf("/") + 1));
         }
     }
 
-    private String[] album1 = {
+    private String[] album1 = { // add ur songs here (will need more buttons/song titles tho)
         "src/GUI/Music/1/autumn.wav",
         "src/GUI/Music/1/cafe.wav",
         "src/GUI/Music/1/jumpy.wav",
         "src/GUI/Music/1/lights.wav",
         "src/GUI/Music/1/waves.wav"};
     
-    private String[] album2 = {
+    private String[] album2 = { // add ur songs here (will need more buttons/song titles tho)
         "src/GUI/Music/2/leap.wav",
         "src/GUI/Music/2/refrain.wav",
         "src/GUI/Music/2/sleep.wav",
         "src/GUI/Music/2/slip.wav",
         "src/GUI/Music/2/slow fall.wav"};
     
-    private String[] wallpapers = {"/GUI/Images/Wall1.jpg", "/GUI/Images/Wall2.jpg", "/GUI/Images/Wall3.jpg"};
+    // NOTEPAD
+    
+    private void saveNote() {
+        String title = JOptionPane.showInputDialog(this, "Enter note title:");  // asks user for a title
+        if (title == null || title.trim().isEmpty()) return; // if they dont set a title, nothing happens
+
+        File file = new File(notesDir, title + ".txt"); // creates file with title + .txt
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(notepadArea.getText());
+            JOptionPane.showMessageDialog(this, "Note saved!"); // dialog
+            System.out.println("path: " + file.getAbsolutePath()); // for debug purposes, not nessecary.
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error saving note."); // fail dialog (surely this never happens)
+        }
+    }
+    
+    private void loadNotesIntoTable() { // Loads saved notes into notepadSelectTable
+        tableModel.setRowCount(0);
+        for (File file : Objects.requireNonNull(notesDir.listFiles())) {
+            if (file.getName().endsWith(".txt")) { // gets all files with .txt
+                try {
+                    List<String> lines = Files.readAllLines(file.toPath()); // reads and applies data to notepadSelectTable 
+                    String content = String.join(" ", lines);
+                    String preview = String.join(" ", Arrays.stream(content.split(" ")).toArray(String[]::new));
+                    tableModel.addRow(new Object[]{file.getName().replace(".txt", ""), preview});
+                } catch (IOException e) { // java exception if things fail (netbeans reccomeneded it)
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    private void openSelectedNote() { // OPEN BUTTON
+        int row = notepadSelectTable.getSelectedRow(); // selection antics
+        if (row == -1) return; // if theres no row
+
+        String title = (String) tableModel.getValueAt(row, 0);
+        File file = new File(notesDir, title + ".txt"); // checks for note title + txt
+        try {
+            List<String> lines = Files.readAllLines(file.toPath());
+            notepadArea.setText(String.join("\n", lines)); // opens saved file in notepadArea
+            notepadSelector.setVisible(false); 
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Failed to open note.");
+        }
+    }
+
+    private void deleteSelectedNote() { // DELETE BUTTON
+        int row = notepadSelectTable.getSelectedRow(); // gets selected row
+        if (row == -1) return; // if theres no row
+
+        String title = (String) tableModel.getValueAt(row, 0);
+        File file = new File(notesDir, title + ".txt"); // checks for note title + txt
+        if (file.delete()) {
+            JOptionPane.showMessageDialog(this, "Note deleted.");
+            loadNotesIntoTable(); // could put this before idk
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to delete note."); // realistically, when is this gonna happen smh
+        }
+    }
+    
+    // WALLPAPER SELECT
+    
+    private String[] wallpapers = {"/GUI/Images/Wall1.jpg", "/GUI/Images/Wall2.jpg", "/GUI/Images/Wall3.jpg"}; // array for three wallpapers, might add more. you can (marker) if you want
     private int currentWallpaper = 0;
 
     /**
@@ -202,19 +277,10 @@ public class MainGUI extends javax.swing.JFrame {
     private void initComponents() {
 
         startMenu = new javax.swing.JPanel();
-        Notepad = new javax.swing.JPanel();
-        notepadTitlebar = new javax.swing.JPanel();
-        NotepadTitle = new javax.swing.JLabel();
-        NotepadClose = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
         playerSelector = new javax.swing.JPanel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
+        playerSelectTitle = new javax.swing.JLabel();
+        album2Image = new javax.swing.JLabel();
+        album1Image = new javax.swing.JLabel();
         album2Select = new javax.swing.JButton();
         album1Select = new javax.swing.JButton();
         Player = new javax.swing.JPanel();
@@ -239,6 +305,22 @@ public class MainGUI extends javax.swing.JFrame {
         player4Play = new javax.swing.JButton();
         player5Play = new javax.swing.JButton();
         playerSelectbtn = new javax.swing.JButton();
+        notepadSelector = new javax.swing.JPanel();
+        notepadSelectOpen = new javax.swing.JButton();
+        notepadSelectDelete = new javax.swing.JButton();
+        notepadSelectTitle = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        notepadSelectTable = new javax.swing.JTable();
+        notepadSelectReturn = new javax.swing.JButton();
+        Notepad = new javax.swing.JPanel();
+        notepadTitlebar = new javax.swing.JPanel();
+        NotepadTitle = new javax.swing.JLabel();
+        NotepadClose = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        notepadArea = new javax.swing.JTextArea();
+        notepadOpen = new javax.swing.JButton();
+        notepadSave = new javax.swing.JButton();
+        notepadClear = new javax.swing.JButton();
         Calculator = new javax.swing.JPanel();
         calcTitlebar = new javax.swing.JPanel();
         CalcTitle = new javax.swing.JLabel();
@@ -293,97 +375,16 @@ public class MainGUI extends javax.swing.JFrame {
 
         getContentPane().add(startMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 260, 320));
 
-        Notepad.setBackground(new java.awt.Color(102, 102, 102));
-        Notepad.setForeground(new java.awt.Color(102, 102, 102));
-
-        notepadTitlebar.setBackground(new java.awt.Color(51, 51, 51));
-        notepadTitlebar.setForeground(new java.awt.Color(51, 51, 51));
-
-        NotepadTitle.setBackground(new java.awt.Color(255, 255, 255));
-        NotepadTitle.setForeground(new java.awt.Color(255, 255, 255));
-        NotepadTitle.setText("Notepad");
-
-        NotepadClose.setText("X");
-        NotepadClose.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                NotepadCloseActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout notepadTitlebarLayout = new javax.swing.GroupLayout(notepadTitlebar);
-        notepadTitlebar.setLayout(notepadTitlebarLayout);
-        notepadTitlebarLayout.setHorizontalGroup(
-            notepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(notepadTitlebarLayout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(NotepadTitle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(NotepadClose, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        notepadTitlebarLayout.setVerticalGroup(
-            notepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(notepadTitlebarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(notepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(NotepadTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
-                    .addComponent(NotepadClose))
-                .addGap(5, 5, 5))
-        );
-
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
-
-        jButton1.setText("Open");
-
-        jButton2.setText("Save File");
-
-        jButton3.setText("Pin To Desktop");
-
-        javax.swing.GroupLayout NotepadLayout = new javax.swing.GroupLayout(Notepad);
-        Notepad.setLayout(NotepadLayout);
-        NotepadLayout.setHorizontalGroup(
-            NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(notepadTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(NotepadLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addGroup(NotepadLayout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 148, Short.MAX_VALUE)
-                        .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)))
-                .addContainerGap())
-        );
-        NotepadLayout.setVerticalGroup(
-            NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(NotepadLayout.createSequentialGroup()
-                .addComponent(notepadTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(7, 7, 7)
-                .addGroup(NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
-        getContentPane().add(Notepad, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 0, 480, 320));
-
         playerSelector.setBackground(new java.awt.Color(51, 51, 51));
 
-        jLabel10.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel10.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setText("Choose an Album");
+        playerSelectTitle.setBackground(new java.awt.Color(255, 255, 255));
+        playerSelectTitle.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
+        playerSelectTitle.setForeground(new java.awt.Color(255, 255, 255));
+        playerSelectTitle.setText("Choose an Album");
 
-        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/random-music-2-small.png"))); // NOI18N
+        album2Image.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/random-music-2-small.png"))); // NOI18N
 
-        jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/random-music-1-small.png"))); // NOI18N
+        album1Image.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/random-music-1-small.png"))); // NOI18N
 
         album2Select.setBackground(new java.awt.Color(0, 0, 0));
         album2Select.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
@@ -415,30 +416,30 @@ public class MainGUI extends javax.swing.JFrame {
                         .addGap(25, 25, 25)
                         .addGroup(playerSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(playerSelectorLayout.createSequentialGroup()
-                                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(album2Image, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(album2Select, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(playerSelectorLayout.createSequentialGroup()
-                                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(album1Image, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(album1Select, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(playerSelectorLayout.createSequentialGroup()
                         .addGap(95, 95, 95)
-                        .addComponent(jLabel10)))
+                        .addComponent(playerSelectTitle)))
                 .addGap(0, 24, Short.MAX_VALUE))
         );
         playerSelectorLayout.setVerticalGroup(
             playerSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(playerSelectorLayout.createSequentialGroup()
                 .addContainerGap(23, Short.MAX_VALUE)
-                .addComponent(jLabel10)
+                .addComponent(playerSelectTitle)
                 .addGap(18, 18, 18)
                 .addGroup(playerSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel12)
+                    .addComponent(album1Image)
                     .addComponent(album1Select, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(playerSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(album2Image, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(album2Select, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(16, 16, 16))
         );
@@ -484,12 +485,12 @@ public class MainGUI extends javax.swing.JFrame {
         );
 
         playerTitle.setBackground(new java.awt.Color(255, 255, 255));
-        playerTitle.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        playerTitle.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         playerTitle.setForeground(new java.awt.Color(255, 255, 255));
         playerTitle.setText("No Song Playing");
 
         playerArtist.setBackground(new java.awt.Color(255, 255, 255));
-        playerArtist.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        playerArtist.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         playerArtist.setForeground(new java.awt.Color(255, 255, 255));
         playerArtist.setText("No Artist");
 
@@ -498,7 +499,7 @@ public class MainGUI extends javax.swing.JFrame {
         playerArtwork.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/test.png"))); // NOI18N
 
         playerRelease.setBackground(new java.awt.Color(255, 255, 255));
-        playerRelease.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        playerRelease.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         playerRelease.setForeground(new java.awt.Color(255, 255, 255));
         playerRelease.setText("No Release");
 
@@ -630,18 +631,22 @@ public class MainGUI extends javax.swing.JFrame {
                         .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(playerArtwork)
                             .addComponent(playerSelectbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(PlayerLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(playerPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(playerStop, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(playerNext, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(playerArtist, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(playerTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
-                                .addComponent(playerRelease, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(PlayerLayout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(playerTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(PlayerLayout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(playerArtist, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(playerRelease, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                         .addGap(8, 8, 8))))
         );
         PlayerLayout.setVerticalGroup(
@@ -651,8 +656,9 @@ public class MainGUI extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PlayerLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
                         .addComponent(playerTitle)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(12, 12, 12)
                         .addComponent(playerArtist)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(playerRelease))
@@ -688,6 +694,200 @@ public class MainGUI extends javax.swing.JFrame {
         );
 
         getContentPane().add(Player, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 0, 310, 470));
+
+        notepadSelector.setBackground(new java.awt.Color(51, 51, 51));
+
+        notepadSelectOpen.setBackground(new java.awt.Color(0, 0, 0));
+        notepadSelectOpen.setForeground(new java.awt.Color(255, 255, 255));
+        notepadSelectOpen.setText("Open");
+        notepadSelectOpen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notepadSelectOpenActionPerformed(evt);
+            }
+        });
+
+        notepadSelectDelete.setBackground(new java.awt.Color(0, 0, 0));
+        notepadSelectDelete.setForeground(new java.awt.Color(255, 255, 255));
+        notepadSelectDelete.setText("Delete");
+        notepadSelectDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notepadSelectDeleteActionPerformed(evt);
+            }
+        });
+
+        notepadSelectTitle.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
+        notepadSelectTitle.setForeground(new java.awt.Color(255, 255, 255));
+        notepadSelectTitle.setText("Choose A Note");
+
+        notepadSelectTable.setBackground(new java.awt.Color(51, 51, 51));
+        notepadSelectTable.setForeground(new java.awt.Color(255, 255, 255));
+        notepadSelectTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Name", "Content"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        notepadSelectTable.setRowSelectionAllowed(false);
+        jScrollPane2.setViewportView(notepadSelectTable);
+
+        notepadSelectReturn.setBackground(new java.awt.Color(0, 0, 0));
+        notepadSelectReturn.setForeground(new java.awt.Color(255, 255, 255));
+        notepadSelectReturn.setText("Return");
+        notepadSelectReturn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notepadSelectReturnActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout notepadSelectorLayout = new javax.swing.GroupLayout(notepadSelector);
+        notepadSelector.setLayout(notepadSelectorLayout);
+        notepadSelectorLayout.setHorizontalGroup(
+            notepadSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(notepadSelectorLayout.createSequentialGroup()
+                .addGroup(notepadSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(notepadSelectorLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE))
+                    .addGroup(notepadSelectorLayout.createSequentialGroup()
+                        .addGap(183, 183, 183)
+                        .addComponent(notepadSelectTitle)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(notepadSelectorLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(notepadSelectReturn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(notepadSelectOpen)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(notepadSelectDelete)))
+                .addContainerGap())
+        );
+        notepadSelectorLayout.setVerticalGroup(
+            notepadSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(notepadSelectorLayout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(notepadSelectTitle)
+                .addGap(18, 18, 18)
+                .addGroup(notepadSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(notepadSelectOpen)
+                    .addComponent(notepadSelectDelete)
+                    .addComponent(notepadSelectReturn))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        getContentPane().add(notepadSelector, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 320, 480, 400));
+
+        Notepad.setBackground(new java.awt.Color(102, 102, 102));
+        Notepad.setForeground(new java.awt.Color(102, 102, 102));
+
+        notepadTitlebar.setBackground(new java.awt.Color(51, 51, 51));
+        notepadTitlebar.setForeground(new java.awt.Color(51, 51, 51));
+
+        NotepadTitle.setBackground(new java.awt.Color(255, 255, 255));
+        NotepadTitle.setForeground(new java.awt.Color(255, 255, 255));
+        NotepadTitle.setText("Notepad");
+
+        NotepadClose.setText("X");
+        NotepadClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                NotepadCloseActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout notepadTitlebarLayout = new javax.swing.GroupLayout(notepadTitlebar);
+        notepadTitlebar.setLayout(notepadTitlebarLayout);
+        notepadTitlebarLayout.setHorizontalGroup(
+            notepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(notepadTitlebarLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(NotepadTitle)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(NotepadClose, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        notepadTitlebarLayout.setVerticalGroup(
+            notepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(notepadTitlebarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(notepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(NotepadTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
+                    .addComponent(NotepadClose))
+                .addGap(5, 5, 5))
+        );
+
+        notepadArea.setBackground(new java.awt.Color(51, 51, 51));
+        notepadArea.setColumns(20);
+        notepadArea.setForeground(new java.awt.Color(255, 255, 255));
+        notepadArea.setRows(5);
+        jScrollPane1.setViewportView(notepadArea);
+
+        notepadOpen.setText("Open/Modify");
+        notepadOpen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notepadOpenActionPerformed(evt);
+            }
+        });
+
+        notepadSave.setText("Save File");
+        notepadSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notepadSaveActionPerformed(evt);
+            }
+        });
+
+        notepadClear.setText("Clear");
+        notepadClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notepadClearActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout NotepadLayout = new javax.swing.GroupLayout(Notepad);
+        Notepad.setLayout(NotepadLayout);
+        NotepadLayout.setHorizontalGroup(
+            NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(notepadTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(NotepadLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
+                    .addGroup(NotepadLayout.createSequentialGroup()
+                        .addComponent(notepadOpen)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(notepadClear)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(notepadSave)))
+                .addContainerGap())
+        );
+        NotepadLayout.setVerticalGroup(
+            NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(NotepadLayout.createSequentialGroup()
+                .addComponent(notepadTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(7, 7, 7)
+                .addGroup(NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(notepadOpen)
+                    .addComponent(notepadSave)
+                    .addComponent(notepadClear))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        getContentPane().add(Notepad, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 0, 480, 320));
 
         Calculator.setBackground(new java.awt.Color(102, 102, 102));
 
@@ -976,6 +1176,8 @@ public class MainGUI extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    // GENERAL WINDOW ACTIONS
+    
     private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startBtnActionPerformed
         // TODO add your handling code here:
         startMenu.setVisible(true);
@@ -1004,26 +1206,28 @@ public class MainGUI extends javax.swing.JFrame {
     private void NotepadCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NotepadCloseActionPerformed
         // TODO add your handling code here:
         Notepad.setVisible(false);
+        notepadSelector.setVisible(false);
     }//GEN-LAST:event_NotepadCloseActionPerformed
 
     private void PlayerCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayerCloseActionPerformed
         // TODO add your handling code here:
         Player.setVisible(false);
         playerSelector.setVisible(false);
-        if (clip != null && clip.isRunning()) {
+        if (clip != null && clip.isRunning()) { // Stop audio if its playing when closed
             clip.stop();
             clip.close();
         }
     }//GEN-LAST:event_PlayerCloseActionPerformed
 
+    // MUSIC PLAYER ACTIONS
+    
     private void musicBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_musicBtnActionPerformed
         // TODO add your handling code here:
         String albumCheck = playerRelease.getText();
         
         Player.setVisible(true);
-        playerSelector.setVisible(true);
         
-        if (albumCheck.equals("No Release")) {
+        if (albumCheck.equals("No Release")) { // if no album is loaded (inital startup), laod the selector
             playerSelector.setVisible(true);
         } else {
             playerSelector.setVisible(false);
@@ -1034,13 +1238,13 @@ public class MainGUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         playerSelector.setVisible(false);
         
-        if (clip != null && clip.isRunning()) {
+        if (clip != null && clip.isRunning()) { // stop if somethings already playing
             clip.stop();
             clip.close();
         }
         
-        playerTitle.setText("Choose a Song");
-        playerArtist.setText("Random Artist");
+        playerTitle.setText("Choose a Song"); // sets initial values
+        playerArtist.setText("22156's Beats");
         playerRelease.setText("Random Music 1");
         currentAlbum = "Random Music 1";
         
@@ -1050,7 +1254,7 @@ public class MainGUI extends javax.swing.JFrame {
         player4Song.setText("Lights");
         player5Song.setText("Waves");
         
-        try {
+        try { // thanks stack overflow
             playerArtwork.setIcon( new ImageIcon(ImageIO.read( new File("src/GUI/Images/random-music-1-large.png"))));
         } catch (IOException ex) {
             Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -1061,13 +1265,13 @@ public class MainGUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         playerSelector.setVisible(false);
         
-        if (clip != null && clip.isRunning()) {
+        if (clip != null && clip.isRunning()) { // stop if somethings already playing
             clip.stop();
             clip.close();
         }
         
-        playerTitle.setText("Choose a Song");
-        playerArtist.setText("Random Artist");
+        playerTitle.setText("Choose a Song"); // sets initial values
+        playerArtist.setText("22156's Beats");
         playerRelease.setText("Random Music 2");
         currentAlbum = "Random Music 2";
         
@@ -1077,7 +1281,7 @@ public class MainGUI extends javax.swing.JFrame {
         player4Song.setText("Slip");
         player5Song.setText("Slow Fall");
         
-        try {
+        try { // gets image + overrides current one
             playerArtwork.setIcon( new ImageIcon(ImageIO.read( new File("src/GUI/Images/random-music-2-large.png"))));
         } catch (IOException ex) {
             Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -1136,7 +1340,7 @@ public class MainGUI extends javax.swing.JFrame {
     private void playerPrevActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playerPrevActionPerformed
         // TODO add your handling code here:
         if (currentTrackIndex > 0) {
-            currentTrackIndex--;
+            currentTrackIndex--; // plays previous
             playCurrentTrack();
         }
     }//GEN-LAST:event_playerPrevActionPerformed
@@ -1146,10 +1350,47 @@ public class MainGUI extends javax.swing.JFrame {
         String[] selectedAlbum = currentAlbum.equals("Random Music 1") ? album1 : album2;
         
         if (currentTrackIndex < selectedAlbum.length - 1) {
-            currentTrackIndex++;
+            currentTrackIndex++; // plays next
             playCurrentTrack();
         }
     }//GEN-LAST:event_playerNextActionPerformed
+
+    // NOTEPAD BUTTON ACTIONS
+    
+    private void notepadSelectOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notepadSelectOpenActionPerformed
+        // TODO add your handling code here:
+        Notepad.setVisible(true);
+        notepadSelector.setVisible(false);
+        openSelectedNote();
+    }//GEN-LAST:event_notepadSelectOpenActionPerformed
+
+    private void notepadSelectDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notepadSelectDeleteActionPerformed
+        // TODO add your handling code here:
+        deleteSelectedNote();
+    }//GEN-LAST:event_notepadSelectDeleteActionPerformed
+
+    private void notepadSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notepadSaveActionPerformed
+        // TODO add your handling code here:
+        saveNote();
+    }//GEN-LAST:event_notepadSaveActionPerformed
+
+    private void notepadClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notepadClearActionPerformed
+        // TODO add your handling code here:
+        notepadArea.setText("");
+    }//GEN-LAST:event_notepadClearActionPerformed
+
+    private void notepadOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notepadOpenActionPerformed
+        // TODO add your handling code here:
+        loadNotesIntoTable();
+        Notepad.setVisible(false);
+        notepadSelector.setVisible(true);
+    }//GEN-LAST:event_notepadOpenActionPerformed
+
+    private void notepadSelectReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notepadSelectReturnActionPerformed
+        // TODO add your handling code here:
+        Notepad.setVisible(true);
+        notepadSelector.setVisible(false);
+    }//GEN-LAST:event_notepadSelectReturnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1211,7 +1452,9 @@ public class MainGUI extends javax.swing.JFrame {
     private javax.swing.JLabel PlayerTitle;
     private javax.swing.JPanel Taskbar;
     private javax.swing.JLabel Wallpaper;
+    private javax.swing.JLabel album1Image;
     private javax.swing.JButton album1Select;
+    private javax.swing.JLabel album2Image;
     private javax.swing.JButton album2Select;
     private javax.swing.JButton calcClear;
     private javax.swing.JButton calcDiv;
@@ -1225,16 +1468,20 @@ public class MainGUI extends javax.swing.JFrame {
     private javax.swing.JButton calcPlus;
     private javax.swing.JPanel calcTitlebar;
     private javax.swing.JButton calculatorBtn;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton musicBtn;
+    private javax.swing.JTextArea notepadArea;
     private javax.swing.JButton notepadBtn;
+    private javax.swing.JButton notepadClear;
+    private javax.swing.JButton notepadOpen;
+    private javax.swing.JButton notepadSave;
+    private javax.swing.JButton notepadSelectDelete;
+    private javax.swing.JButton notepadSelectOpen;
+    private javax.swing.JButton notepadSelectReturn;
+    private javax.swing.JTable notepadSelectTable;
+    private javax.swing.JLabel notepadSelectTitle;
+    private javax.swing.JPanel notepadSelector;
     private javax.swing.JPanel notepadTitlebar;
     private javax.swing.JButton player1Play;
     private javax.swing.JLabel player1Song;
@@ -1251,6 +1498,7 @@ public class MainGUI extends javax.swing.JFrame {
     private javax.swing.JButton playerNext;
     private javax.swing.JButton playerPrev;
     private javax.swing.JLabel playerRelease;
+    private javax.swing.JLabel playerSelectTitle;
     private javax.swing.JButton playerSelectbtn;
     private javax.swing.JPanel playerSelector;
     private javax.swing.JButton playerStop;
