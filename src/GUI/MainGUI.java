@@ -4,12 +4,22 @@
  */
 package GUI;
 
+// GENERAL IMPORTS
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+// MEDIA PLAYER
+import java.io.File;
+import javax.sound.sampled.*;
+
 
 /**
  *
@@ -21,11 +31,14 @@ public class MainGUI extends javax.swing.JFrame {
      * Creates new form MainGUI
      */
     
-    private Point initialClick;
+    private Clip clip;
+    private int currentTrackIndex = 0;
+    private String currentAlbum = "";
     
     public MainGUI() {
         initComponents();
         
+        // CLOCK
         javax.swing.Timer timer = new javax.swing.Timer(1000, (java.awt.event.ActionEvent evt) -> { // updates every second
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss"); // format for the clock
             String currentTime = sdf.format(new Date()); // define clock
@@ -33,21 +46,37 @@ public class MainGUI extends javax.swing.JFrame {
         });
         timer.start();
         
+        // ICON
         ImageIcon icon = new ImageIcon("C:\\Users\\22156\\OneDrive - northcote.school.nz\\Documents\\NetBeansProjects\\javaguibad\\src\\GUI\\Images\\desktop.png");
         setIconImage(icon.getImage());
         
+        // STYLING
         styleButton(startBtn);
         styleButton(calculatorBtn);
         styleButton(notepadBtn);
-        styleButton(paintBtn);
         styleButton(musicBtn);
         styleButton(wallpaperBtn);
-        
-        makeDraggable(Calculator, CalcTitlebar);
-        makeDraggable(Player, PlayerTitlebar);
-        makeDraggable(Notepad, NotepadTitlebar);
-        
         styleTextField(Clock);
+        
+        // DRAG
+        makeDraggable(Calculator, calcTitlebar);
+        makeDraggable(Player, playerTitlebar);
+        makeDraggable(Notepad, notepadTitlebar);
+        
+        // STARTUP
+        Calculator.setVisible(false);
+        Notepad.setVisible(false);
+        Player.setVisible(false);
+        playerSelector.setVisible(false);
+        startMenu.setVisible(false);
+        
+        // MUSIC
+        playerStop.addActionListener(e -> {
+            if (clip != null && clip.isRunning()) {
+                clip.stop();
+                clip.close();
+            }
+        });
     }
     
      // DRAGGING
@@ -69,7 +98,6 @@ public class MainGUI extends javax.swing.JFrame {
     });
 
     titlebar.addMouseMotionListener(new MouseMotionAdapter() {
-        @Override
         public void mouseDragged(MouseEvent e) {
             if (initialClick[0] == null) return;
 
@@ -105,7 +133,62 @@ public class MainGUI extends javax.swing.JFrame {
         textField.setBorder(null);
         textField.setFocusable(false);
     }
+    
+    // Music Player
+    private void playSound(String filePath) {
+        try {
+            // Stop and close previous clip if it exists
+            if (clip != null && clip.isRunning()) {
+                clip.stop();
+                clip.close();
+            }
 
+            File soundFile = new File(filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+            clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    private void playCurrentTrack() {
+        String[] selectedAlbum;
+
+        if (currentAlbum.equals("Random Music 1")) {
+            selectedAlbum = album1;
+        } else if (currentAlbum.equals("Random Music 2")) {
+            selectedAlbum = album2;
+        } else {
+            playerTitle.setText("No Album Selected!!");
+            return;
+        }
+
+        if (currentTrackIndex >= 0 && currentTrackIndex < selectedAlbum.length) {
+            playSound(selectedAlbum[currentTrackIndex]);
+            // Optional: set the title
+            String path = selectedAlbum[currentTrackIndex];
+            playerTitle.setText(path.substring(path.lastIndexOf("/") + 1));
+        }
+    }
+
+    private String[] album1 = {
+        "src/GUI/Music/1/autumn.wav",
+        "src/GUI/Music/1/cafe.wav",
+        "src/GUI/Music/1/jumpy.wav",
+        "src/GUI/Music/1/lights.wav",
+        "src/GUI/Music/1/waves.wav"};
+    
+    private String[] album2 = {
+        "src/GUI/Music/2/leap.wav",
+        "src/GUI/Music/2/refrain.wav",
+        "src/GUI/Music/2/sleep.wav",
+        "src/GUI/Music/2/slip.wav",
+        "src/GUI/Music/2/slow fall.wav"};
+    
     private String[] wallpapers = {"/GUI/Images/Wall1.jpg", "/GUI/Images/Wall2.jpg", "/GUI/Images/Wall3.jpg"};
     private int currentWallpaper = 0;
 
@@ -118,8 +201,9 @@ public class MainGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        startMenu = new javax.swing.JPanel();
         Notepad = new javax.swing.JPanel();
-        NotepadTitlebar = new javax.swing.JPanel();
+        notepadTitlebar = new javax.swing.JPanel();
         NotepadTitle = new javax.swing.JLabel();
         NotepadClose = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -127,28 +211,48 @@ public class MainGUI extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        playerSelector = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        album2Select = new javax.swing.JButton();
+        album1Select = new javax.swing.JButton();
         Player = new javax.swing.JPanel();
-        PlayerTitlebar = new javax.swing.JPanel();
+        playerTitlebar = new javax.swing.JPanel();
         PlayerTitle = new javax.swing.JLabel();
         PlayerClose = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        playerTitle = new javax.swing.JLabel();
+        playerArtist = new javax.swing.JLabel();
+        playerArtwork = new javax.swing.JLabel();
+        playerRelease = new javax.swing.JLabel();
+        playerPrev = new javax.swing.JButton();
+        playerStop = new javax.swing.JButton();
+        playerNext = new javax.swing.JButton();
+        player2Song = new javax.swing.JLabel();
+        player1Song = new javax.swing.JLabel();
+        player3Song = new javax.swing.JLabel();
+        player4Song = new javax.swing.JLabel();
+        player5Song = new javax.swing.JLabel();
+        player2Play = new javax.swing.JButton();
+        player1Play = new javax.swing.JButton();
+        player3Play = new javax.swing.JButton();
+        player4Play = new javax.swing.JButton();
+        player5Play = new javax.swing.JButton();
+        playerSelectbtn = new javax.swing.JButton();
         Calculator = new javax.swing.JPanel();
-        CalcTitlebar = new javax.swing.JPanel();
+        calcTitlebar = new javax.swing.JPanel();
         CalcTitle = new javax.swing.JLabel();
         CalcClose = new javax.swing.JButton();
-        CalcField = new javax.swing.JTextField();
-        CalcEquals = new javax.swing.JButton();
-        CalcClear = new javax.swing.JButton();
-        CalcPlus = new javax.swing.JButton();
-        CalcMinus = new javax.swing.JButton();
-        CalcMulti = new javax.swing.JButton();
-        CalcDiv = new javax.swing.JButton();
-        CalcMod = new javax.swing.JButton();
-        CalcPeriod = new javax.swing.JButton();
-        CalcPower = new javax.swing.JButton();
+        calcField = new javax.swing.JTextField();
+        calcExpression = new javax.swing.JTextField();
+        calcEquals = new javax.swing.JButton();
+        calcClear = new javax.swing.JButton();
+        calcPlus = new javax.swing.JButton();
+        calcMinus = new javax.swing.JButton();
+        calcMulti = new javax.swing.JButton();
+        calcDiv = new javax.swing.JButton();
+        calcMod = new javax.swing.JButton();
+        calcPeriod = new javax.swing.JButton();
         Calc0 = new javax.swing.JButton();
         Calc1 = new javax.swing.JButton();
         Calc2 = new javax.swing.JButton();
@@ -163,7 +267,6 @@ public class MainGUI extends javax.swing.JFrame {
         startBtn = new javax.swing.JButton();
         calculatorBtn = new javax.swing.JButton();
         notepadBtn = new javax.swing.JButton();
-        paintBtn = new javax.swing.JButton();
         wallpaperBtn = new javax.swing.JButton();
         Clock = new javax.swing.JTextField();
         musicBtn = new javax.swing.JButton();
@@ -175,37 +278,57 @@ public class MainGUI extends javax.swing.JFrame {
         setSize(new java.awt.Dimension(1368, 770));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        startMenu.setBackground(new java.awt.Color(0, 0, 0));
+
+        javax.swing.GroupLayout startMenuLayout = new javax.swing.GroupLayout(startMenu);
+        startMenu.setLayout(startMenuLayout);
+        startMenuLayout.setHorizontalGroup(
+            startMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 260, Short.MAX_VALUE)
+        );
+        startMenuLayout.setVerticalGroup(
+            startMenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 320, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(startMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 260, 320));
+
         Notepad.setBackground(new java.awt.Color(102, 102, 102));
         Notepad.setForeground(new java.awt.Color(102, 102, 102));
 
-        NotepadTitlebar.setBackground(new java.awt.Color(51, 51, 51));
-        NotepadTitlebar.setForeground(new java.awt.Color(51, 51, 51));
+        notepadTitlebar.setBackground(new java.awt.Color(51, 51, 51));
+        notepadTitlebar.setForeground(new java.awt.Color(51, 51, 51));
 
         NotepadTitle.setBackground(new java.awt.Color(255, 255, 255));
         NotepadTitle.setForeground(new java.awt.Color(255, 255, 255));
         NotepadTitle.setText("Notepad");
 
         NotepadClose.setText("X");
+        NotepadClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                NotepadCloseActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout NotepadTitlebarLayout = new javax.swing.GroupLayout(NotepadTitlebar);
-        NotepadTitlebar.setLayout(NotepadTitlebarLayout);
-        NotepadTitlebarLayout.setHorizontalGroup(
-            NotepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(NotepadTitlebarLayout.createSequentialGroup()
+        javax.swing.GroupLayout notepadTitlebarLayout = new javax.swing.GroupLayout(notepadTitlebar);
+        notepadTitlebar.setLayout(notepadTitlebarLayout);
+        notepadTitlebarLayout.setHorizontalGroup(
+            notepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(notepadTitlebarLayout.createSequentialGroup()
                 .addGap(15, 15, 15)
                 .addComponent(NotepadTitle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(NotepadClose, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-        NotepadTitlebarLayout.setVerticalGroup(
-            NotepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(NotepadTitlebarLayout.createSequentialGroup()
+        notepadTitlebarLayout.setVerticalGroup(
+            notepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(notepadTitlebarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(NotepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(notepadTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(NotepadTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
                     .addComponent(NotepadClose))
-                .addContainerGap())
+                .addGap(5, 5, 5))
         );
 
         jTextArea1.setColumns(20);
@@ -222,14 +345,14 @@ public class MainGUI extends javax.swing.JFrame {
         Notepad.setLayout(NotepadLayout);
         NotepadLayout.setHorizontalGroup(
             NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(NotepadTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(notepadTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(NotepadLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
                     .addGroup(NotepadLayout.createSequentialGroup()
                         .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 193, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 148, Short.MAX_VALUE)
                         .addComponent(jButton3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton2)))
@@ -238,8 +361,8 @@ public class MainGUI extends javax.swing.JFrame {
         NotepadLayout.setVerticalGroup(
             NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(NotepadLayout.createSequentialGroup()
-                .addComponent(NotepadTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(notepadTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(7, 7, 7)
                 .addGroup(NotepadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2)
@@ -249,139 +372,377 @@ public class MainGUI extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        getContentPane().add(Notepad, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 30, 480, 320));
+        getContentPane().add(Notepad, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 0, 480, 320));
+
+        playerSelector.setBackground(new java.awt.Color(51, 51, 51));
+
+        jLabel10.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel10.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setText("Choose an Album");
+
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/random-music-2-small.png"))); // NOI18N
+
+        jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/random-music-1-small.png"))); // NOI18N
+
+        album2Select.setBackground(new java.awt.Color(0, 0, 0));
+        album2Select.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
+        album2Select.setForeground(new java.awt.Color(255, 255, 255));
+        album2Select.setText("Random Music 2");
+        album2Select.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                album2SelectActionPerformed(evt);
+            }
+        });
+
+        album1Select.setBackground(new java.awt.Color(0, 0, 0));
+        album1Select.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
+        album1Select.setForeground(new java.awt.Color(255, 255, 255));
+        album1Select.setText("Random Music 1");
+        album1Select.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                album1SelectActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout playerSelectorLayout = new javax.swing.GroupLayout(playerSelector);
+        playerSelector.setLayout(playerSelectorLayout);
+        playerSelectorLayout.setHorizontalGroup(
+            playerSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(playerSelectorLayout.createSequentialGroup()
+                .addGroup(playerSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(playerSelectorLayout.createSequentialGroup()
+                        .addGap(25, 25, 25)
+                        .addGroup(playerSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(playerSelectorLayout.createSequentialGroup()
+                                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(album2Select, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(playerSelectorLayout.createSequentialGroup()
+                                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(album1Select, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(playerSelectorLayout.createSequentialGroup()
+                        .addGap(95, 95, 95)
+                        .addComponent(jLabel10)))
+                .addGap(0, 24, Short.MAX_VALUE))
+        );
+        playerSelectorLayout.setVerticalGroup(
+            playerSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(playerSelectorLayout.createSequentialGroup()
+                .addContainerGap(23, Short.MAX_VALUE)
+                .addComponent(jLabel10)
+                .addGap(18, 18, 18)
+                .addGroup(playerSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel12)
+                    .addComponent(album1Select, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(playerSelectorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(album2Select, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(16, 16, 16))
+        );
+
+        getContentPane().add(playerSelector, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 470, 310, 250));
 
         Player.setBackground(new java.awt.Color(102, 102, 102));
         Player.setForeground(new java.awt.Color(102, 102, 102));
 
-        PlayerTitlebar.setBackground(new java.awt.Color(51, 51, 51));
-        PlayerTitlebar.setForeground(new java.awt.Color(0, 0, 0));
+        playerTitlebar.setBackground(new java.awt.Color(51, 51, 51));
+        playerTitlebar.setForeground(new java.awt.Color(0, 0, 0));
 
         PlayerTitle.setBackground(new java.awt.Color(255, 255, 255));
         PlayerTitle.setForeground(new java.awt.Color(255, 255, 255));
         PlayerTitle.setText("Music Player");
 
         PlayerClose.setText("X");
+        PlayerClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PlayerCloseActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout PlayerTitlebarLayout = new javax.swing.GroupLayout(PlayerTitlebar);
-        PlayerTitlebar.setLayout(PlayerTitlebarLayout);
-        PlayerTitlebarLayout.setHorizontalGroup(
-            PlayerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PlayerTitlebarLayout.createSequentialGroup()
+        javax.swing.GroupLayout playerTitlebarLayout = new javax.swing.GroupLayout(playerTitlebar);
+        playerTitlebar.setLayout(playerTitlebarLayout);
+        playerTitlebarLayout.setHorizontalGroup(
+            playerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(playerTitlebarLayout.createSequentialGroup()
                 .addGap(17, 17, 17)
                 .addComponent(PlayerTitle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(PlayerClose, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-        PlayerTitlebarLayout.setVerticalGroup(
-            PlayerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PlayerTitlebarLayout.createSequentialGroup()
+        playerTitlebarLayout.setVerticalGroup(
+            playerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, playerTitlebarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(PlayerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(playerTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(PlayerTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(PlayerClose))
                 .addContainerGap())
         );
 
-        jLabel1.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("No Song Playing");
+        playerTitle.setBackground(new java.awt.Color(255, 255, 255));
+        playerTitle.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        playerTitle.setForeground(new java.awt.Color(255, 255, 255));
+        playerTitle.setText("No Song Playing");
 
-        jLabel2.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("No Artist");
+        playerArtist.setBackground(new java.awt.Color(255, 255, 255));
+        playerArtist.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        playerArtist.setForeground(new java.awt.Color(255, 255, 255));
+        playerArtist.setText("No Artist");
 
-        jLabel3.setBackground(new java.awt.Color(0, 0, 0));
-        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/test.png"))); // NOI18N
+        playerArtwork.setBackground(new java.awt.Color(0, 0, 0));
+        playerArtwork.setForeground(new java.awt.Color(0, 0, 0));
+        playerArtwork.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/test.png"))); // NOI18N
 
-        jLabel4.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("No Release");
+        playerRelease.setBackground(new java.awt.Color(255, 255, 255));
+        playerRelease.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        playerRelease.setForeground(new java.awt.Color(255, 255, 255));
+        playerRelease.setText("No Release");
+
+        playerPrev.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        playerPrev.setText("<");
+        playerPrev.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                playerPrevActionPerformed(evt);
+            }
+        });
+
+        playerStop.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        playerStop.setText("O");
+        playerStop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                playerStopActionPerformed(evt);
+            }
+        });
+
+        playerNext.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        playerNext.setText(">");
+        playerNext.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                playerNextActionPerformed(evt);
+            }
+        });
+
+        player2Song.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        player2Song.setForeground(new java.awt.Color(255, 255, 255));
+        player2Song.setText("Song 2");
+
+        player1Song.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        player1Song.setForeground(new java.awt.Color(255, 255, 255));
+        player1Song.setText("Song 1");
+
+        player3Song.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        player3Song.setForeground(new java.awt.Color(255, 255, 255));
+        player3Song.setText("Song 3");
+
+        player4Song.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        player4Song.setForeground(new java.awt.Color(255, 255, 255));
+        player4Song.setText("Song 4");
+
+        player5Song.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        player5Song.setForeground(new java.awt.Color(255, 255, 255));
+        player5Song.setText("Song 5");
+
+        player2Play.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        player2Play.setText("Play");
+        player2Play.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                player2PlayActionPerformed(evt);
+            }
+        });
+
+        player1Play.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        player1Play.setText("Play");
+        player1Play.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                player1PlayActionPerformed(evt);
+            }
+        });
+
+        player3Play.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        player3Play.setText("Play");
+        player3Play.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                player3PlayActionPerformed(evt);
+            }
+        });
+
+        player4Play.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        player4Play.setText("Play");
+        player4Play.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                player4PlayActionPerformed(evt);
+            }
+        });
+
+        player5Play.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        player5Play.setText("Play");
+        player5Play.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                player5PlayActionPerformed(evt);
+            }
+        });
+
+        playerSelectbtn.setText("Album");
+        playerSelectbtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                playerSelectbtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout PlayerLayout = new javax.swing.GroupLayout(Player);
         Player.setLayout(PlayerLayout);
         PlayerLayout.setHorizontalGroup(
             PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(PlayerTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PlayerLayout.createSequentialGroup()
+            .addComponent(playerTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(PlayerLayout.createSequentialGroup()
                 .addGap(16, 16, 16)
-                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
                 .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel4))
-                .addGap(56, 56, 56))
+                    .addGroup(PlayerLayout.createSequentialGroup()
+                        .addComponent(player2Song)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(player2Play)
+                        .addContainerGap())
+                    .addGroup(PlayerLayout.createSequentialGroup()
+                        .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(PlayerLayout.createSequentialGroup()
+                                .addComponent(player5Song)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(player5Play))
+                            .addGroup(PlayerLayout.createSequentialGroup()
+                                .addComponent(player4Song)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(player4Play))
+                            .addGroup(PlayerLayout.createSequentialGroup()
+                                .addComponent(player3Song)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(player3Play)))
+                        .addContainerGap())
+                    .addGroup(PlayerLayout.createSequentialGroup()
+                        .addComponent(player1Song)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(player1Play)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PlayerLayout.createSequentialGroup()
+                        .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(playerArtwork)
+                            .addComponent(playerSelectbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(PlayerLayout.createSequentialGroup()
+                                .addComponent(playerPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(playerStop, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(playerNext, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(playerArtist, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(playerTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 159, Short.MAX_VALUE)
+                                .addComponent(playerRelease, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(8, 8, 8))))
         );
         PlayerLayout.setVerticalGroup(
             PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PlayerLayout.createSequentialGroup()
-                .addComponent(PlayerTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(playerTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PlayerLayout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addComponent(playerTitle)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel2)
+                        .addComponent(playerArtist)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel4))
-                    .addComponent(jLabel3))
-                .addGap(0, 342, Short.MAX_VALUE))
+                        .addComponent(playerRelease))
+                    .addComponent(playerArtwork, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(playerNext, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(playerStop, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(playerPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(playerSelectbtn, javax.swing.GroupLayout.DEFAULT_SIZE, 46, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(player1Song)
+                    .addComponent(player1Play))
+                .addGap(18, 18, 18)
+                .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(player2Play)
+                    .addComponent(player2Song))
+                .addGap(18, 18, 18)
+                .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(player3Song)
+                    .addComponent(player3Play))
+                .addGap(18, 18, 18)
+                .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(player4Song)
+                    .addComponent(player4Play))
+                .addGap(18, 18, 18)
+                .addGroup(PlayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(player5Song)
+                    .addComponent(player5Play))
+                .addGap(22, 22, 22))
         );
 
-        getContentPane().add(Player, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 20, 290, 500));
+        getContentPane().add(Player, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 0, 310, 470));
 
         Calculator.setBackground(new java.awt.Color(102, 102, 102));
 
-        CalcTitlebar.setBackground(new java.awt.Color(51, 51, 51));
-        CalcTitlebar.setForeground(new java.awt.Color(51, 51, 51));
+        calcTitlebar.setBackground(new java.awt.Color(51, 51, 51));
+        calcTitlebar.setForeground(new java.awt.Color(51, 51, 51));
 
         CalcTitle.setBackground(new java.awt.Color(255, 255, 255));
         CalcTitle.setForeground(new java.awt.Color(255, 255, 255));
         CalcTitle.setText("Calculator");
 
         CalcClose.setText("X");
+        CalcClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CalcCloseActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout CalcTitlebarLayout = new javax.swing.GroupLayout(CalcTitlebar);
-        CalcTitlebar.setLayout(CalcTitlebarLayout);
-        CalcTitlebarLayout.setHorizontalGroup(
-            CalcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(CalcTitlebarLayout.createSequentialGroup()
+        javax.swing.GroupLayout calcTitlebarLayout = new javax.swing.GroupLayout(calcTitlebar);
+        calcTitlebar.setLayout(calcTitlebarLayout);
+        calcTitlebarLayout.setHorizontalGroup(
+            calcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(calcTitlebarLayout.createSequentialGroup()
                 .addGap(16, 16, 16)
                 .addComponent(CalcTitle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(CalcClose, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-        CalcTitlebarLayout.setVerticalGroup(
-            CalcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(CalcTitlebarLayout.createSequentialGroup()
+        calcTitlebarLayout.setVerticalGroup(
+            calcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(calcTitlebarLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(CalcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(calcTitlebarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(CalcTitle)
                     .addComponent(CalcClose))
-                .addContainerGap(8, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        CalcEquals.setText("=");
+        calcExpression.setText("Expression");
 
-        CalcClear.setText("Clear");
+        calcEquals.setText("=");
 
-        CalcPlus.setText("+");
+        calcClear.setText("Clear");
 
-        CalcMinus.setText("-");
+        calcPlus.setText("+");
 
-        CalcMulti.setText("X");
+        calcMinus.setText("-");
 
-        CalcDiv.setText("/");
+        calcMulti.setText("X");
 
-        CalcMod.setText("M");
+        calcDiv.setText("/");
 
-        CalcPeriod.setText(".");
+        calcMod.setText("M");
 
-        CalcPower.setText("^");
+        calcPeriod.setText(".");
 
         Calc0.setText("0");
 
@@ -394,11 +755,6 @@ public class MainGUI extends javax.swing.JFrame {
         Calc4.setText("4");
 
         Calc5.setText("5");
-        Calc5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Calc5ActionPerformed(evt);
-            }
-        });
 
         Calc6.setText("6");
 
@@ -412,68 +768,66 @@ public class MainGUI extends javax.swing.JFrame {
         Calculator.setLayout(CalculatorLayout);
         CalculatorLayout.setHorizontalGroup(
             CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(CalcTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createSequentialGroup()
+            .addComponent(calcTitlebar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(CalculatorLayout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(CalculatorLayout.createSequentialGroup()
-                        .addComponent(CalcField)
-                        .addGap(18, 18, 18)
-                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(CalcMod, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(CalcMinus, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
-                            .addComponent(CalcPlus, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
-                            .addComponent(CalcMulti, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(CalcDiv, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(CalculatorLayout.createSequentialGroup()
-                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(CalculatorLayout.createSequentialGroup()
-                                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(calcField, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(calcExpression, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(CalculatorLayout.createSequentialGroup()
+                            .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(CalculatorLayout.createSequentialGroup()
+                                    .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                            .addComponent(Calc0, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(Calc7, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(Calc1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addComponent(Calc4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGap(18, 18, 18)
                                     .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(Calc0, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(Calc7, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(Calc1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addComponent(Calc4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(Calc2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(CalcPeriod, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(Calc5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(Calc8, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(CalcClear, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(CalculatorLayout.createSequentialGroup()
-                                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(Calc3, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
-                                    .addComponent(CalcPower, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(Calc9, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
-                                    .addComponent(Calc6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(0, 79, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(CalcEquals, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addGap(16, 16, 16))
+                                        .addComponent(Calc2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(calcPeriod, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(Calc5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(Calc8, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(calcClear, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(18, 18, 18)
+                            .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(CalculatorLayout.createSequentialGroup()
+                                    .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(Calc3, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+                                        .addComponent(Calc9, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+                                        .addComponent(Calc6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(calcMinus, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(calcMulti, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(calcDiv, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createSequentialGroup()
+                                    .addComponent(calcMod, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(calcPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(calcEquals, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
         CalculatorLayout.setVerticalGroup(
             CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(CalculatorLayout.createSequentialGroup()
-                .addComponent(CalcTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(CalcMod, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(CalcField, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addComponent(calcTitlebar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(14, 14, 14)
+                .addComponent(calcField, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(calcExpression, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(CalculatorLayout.createSequentialGroup()
-                            .addComponent(CalcDiv, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(50, 50, 50)
+                            .addComponent(calcMulti, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(CalcMulti, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(calcMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(CalcMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(CalcPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(calcPlus, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(CalculatorLayout.createSequentialGroup()
                             .addComponent(Calc7, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGap(112, 112, 112)
@@ -481,7 +835,8 @@ public class MainGUI extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createSequentialGroup()
                         .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(Calc8, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(Calc9, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(Calc9, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(calcDiv, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(Calc5, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -492,19 +847,20 @@ public class MainGUI extends javax.swing.JFrame {
                             .addComponent(Calc2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(Calc1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(CalcPeriod, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(calcPeriod, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(calcMod, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, CalculatorLayout.createSequentialGroup()
                         .addComponent(Calc3, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(CalcPower, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(28, 28, 28)
-                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(CalcClear, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(CalcEquals, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(13, Short.MAX_VALUE))
+                        .addGap(50, 50, 50)))
+                .addGap(12, 12, 12)
+                .addGroup(CalculatorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(calcEquals, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(calcClear, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(23, 23, 23))
         );
 
-        getContentPane().add(Calculator, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 260, 400));
+        getContentPane().add(Calculator, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 0, 270, 450));
 
         Taskbar.setBackground(new java.awt.Color(0, 0, 0));
         Taskbar.setForeground(new java.awt.Color(255, 255, 255));
@@ -542,15 +898,6 @@ public class MainGUI extends javax.swing.JFrame {
             }
         });
 
-        paintBtn.setBackground(new java.awt.Color(0, 0, 0));
-        paintBtn.setForeground(new java.awt.Color(255, 255, 255));
-        paintBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/paint.png"))); // NOI18N
-        paintBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                paintBtnActionPerformed(evt);
-            }
-        });
-
         wallpaperBtn.setBackground(new java.awt.Color(0, 0, 0));
         wallpaperBtn.setForeground(new java.awt.Color(255, 255, 255));
         wallpaperBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/wallpaper.png"))); // NOI18N
@@ -572,15 +919,15 @@ public class MainGUI extends javax.swing.JFrame {
         Clock.setOpaque(true);
         Clock.setPreferredSize(new java.awt.Dimension(68, 26));
         Clock.setSelectionColor(new java.awt.Color(255, 255, 255));
-        Clock.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ClockActionPerformed(evt);
-            }
-        });
 
         musicBtn.setBackground(new java.awt.Color(0, 0, 0));
         musicBtn.setForeground(new java.awt.Color(255, 255, 255));
         musicBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/GUI/Images/music.png"))); // NOI18N
+        musicBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                musicBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout TaskbarLayout = new javax.swing.GroupLayout(Taskbar);
         Taskbar.setLayout(TaskbarLayout);
@@ -594,10 +941,8 @@ public class MainGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(notepadBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(paintBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(musicBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 862, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 883, Short.MAX_VALUE)
                 .addComponent(wallpaperBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(Clock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -609,7 +954,6 @@ public class MainGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(TaskbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(musicBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(paintBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(notepadBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(calculatorBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(TaskbarLayout.createSequentialGroup()
@@ -634,19 +978,17 @@ public class MainGUI extends javax.swing.JFrame {
 
     private void startBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startBtnActionPerformed
         // TODO add your handling code here:
-        
+        startMenu.setVisible(true);
     }//GEN-LAST:event_startBtnActionPerformed
-
-    private void paintBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paintBtnActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_paintBtnActionPerformed
 
     private void notepadBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notepadBtnActionPerformed
         // TODO add your handling code here:
+        Notepad.setVisible(true);
     }//GEN-LAST:event_notepadBtnActionPerformed
 
     private void calculatorBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_calculatorBtnActionPerformed
         // TODO add your handling code here:
+        Calculator.setVisible(true);
     }//GEN-LAST:event_calculatorBtnActionPerformed
 
     private void wallpaperBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wallpaperBtnActionPerformed
@@ -654,13 +996,160 @@ public class MainGUI extends javax.swing.JFrame {
         Wallpaper.setIcon(new javax.swing.ImageIcon(getClass().getResource(wallpapers[currentWallpaper])));
     }//GEN-LAST:event_wallpaperBtnActionPerformed
 
-    private void ClockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClockActionPerformed
+    private void CalcCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CalcCloseActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_ClockActionPerformed
+        Calculator.setVisible(false);
+    }//GEN-LAST:event_CalcCloseActionPerformed
 
-    private void Calc5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Calc5ActionPerformed
+    private void NotepadCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NotepadCloseActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_Calc5ActionPerformed
+        Notepad.setVisible(false);
+    }//GEN-LAST:event_NotepadCloseActionPerformed
+
+    private void PlayerCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayerCloseActionPerformed
+        // TODO add your handling code here:
+        Player.setVisible(false);
+        playerSelector.setVisible(false);
+        if (clip != null && clip.isRunning()) {
+            clip.stop();
+            clip.close();
+        }
+    }//GEN-LAST:event_PlayerCloseActionPerformed
+
+    private void musicBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_musicBtnActionPerformed
+        // TODO add your handling code here:
+        String albumCheck = playerRelease.getText();
+        
+        Player.setVisible(true);
+        playerSelector.setVisible(true);
+        
+        if (albumCheck.equals("No Release")) {
+            playerSelector.setVisible(true);
+        } else {
+            playerSelector.setVisible(false);
+        }
+    }//GEN-LAST:event_musicBtnActionPerformed
+
+    private void album1SelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_album1SelectActionPerformed
+        // TODO add your handling code here:
+        playerSelector.setVisible(false);
+        
+        if (clip != null && clip.isRunning()) {
+            clip.stop();
+            clip.close();
+        }
+        
+        playerTitle.setText("Choose a Song");
+        playerArtist.setText("Random Artist");
+        playerRelease.setText("Random Music 1");
+        currentAlbum = "Random Music 1";
+        
+        player1Song.setText("Autumn");
+        player2Song.setText("Cafe");
+        player3Song.setText("Jumpy");
+        player4Song.setText("Lights");
+        player5Song.setText("Waves");
+        
+        try {
+            playerArtwork.setIcon( new ImageIcon(ImageIO.read( new File("src/GUI/Images/random-music-1-large.png"))));
+        } catch (IOException ex) {
+            Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_album1SelectActionPerformed
+
+    private void album2SelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_album2SelectActionPerformed
+        // TODO add your handling code here:
+        playerSelector.setVisible(false);
+        
+        if (clip != null && clip.isRunning()) {
+            clip.stop();
+            clip.close();
+        }
+        
+        playerTitle.setText("Choose a Song");
+        playerArtist.setText("Random Artist");
+        playerRelease.setText("Random Music 2");
+        currentAlbum = "Random Music 2";
+        
+        player1Song.setText("Leap");
+        player2Song.setText("Refrain");
+        player3Song.setText("Sleep");
+        player4Song.setText("Slip");
+        player5Song.setText("Slow Fall");
+        
+        try {
+            playerArtwork.setIcon( new ImageIcon(ImageIO.read( new File("src/GUI/Images/random-music-2-large.png"))));
+        } catch (IOException ex) {
+            Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_album2SelectActionPerformed
+
+    private void playerStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playerStopActionPerformed
+        // TODO add your handling code here:
+        if (clip != null && clip.isRunning()) {
+            clip.stop();
+            clip.close();
+        }
+        playerTitle.setText("Song Stopped");
+    }//GEN-LAST:event_playerStopActionPerformed
+
+    private void player1PlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_player1PlayActionPerformed
+        // TODO add your handling code here:
+        currentAlbum = playerRelease.getText(); // Get album
+        currentTrackIndex = 0; // Track
+        playCurrentTrack();
+    }//GEN-LAST:event_player1PlayActionPerformed
+
+    private void playerSelectbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playerSelectbtnActionPerformed
+        // TODO add your handling code here:
+        playerSelector.setVisible(true);
+    }//GEN-LAST:event_playerSelectbtnActionPerformed
+
+    private void player2PlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_player2PlayActionPerformed
+        // TODO add your handling code here:
+        currentAlbum = playerRelease.getText(); // Get album
+        currentTrackIndex = 1; // Track
+        playCurrentTrack();
+    }//GEN-LAST:event_player2PlayActionPerformed
+
+    private void player3PlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_player3PlayActionPerformed
+        // TODO add your handling code here:
+        currentAlbum = playerRelease.getText(); // Get album
+        currentTrackIndex = 2; // Track
+        playCurrentTrack();
+    }//GEN-LAST:event_player3PlayActionPerformed
+
+    private void player4PlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_player4PlayActionPerformed
+        // TODO add your handling code here:
+        currentAlbum = playerRelease.getText(); // Get album
+        currentTrackIndex = 3; // Track
+        playCurrentTrack();
+    }//GEN-LAST:event_player4PlayActionPerformed
+
+    private void player5PlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_player5PlayActionPerformed
+        // TODO add your handling code here:
+        currentAlbum = playerRelease.getText(); // Get album
+        currentTrackIndex = 4; // Track
+        playCurrentTrack();
+    }//GEN-LAST:event_player5PlayActionPerformed
+
+    private void playerPrevActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playerPrevActionPerformed
+        // TODO add your handling code here:
+        if (currentTrackIndex > 0) {
+            currentTrackIndex--;
+            playCurrentTrack();
+        }
+    }//GEN-LAST:event_playerPrevActionPerformed
+
+    private void playerNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playerNextActionPerformed
+        // TODO add your handling code here:
+        String[] selectedAlbum = currentAlbum.equals("Random Music 1") ? album1 : album2;
+        
+        if (currentTrackIndex < selectedAlbum.length - 1) {
+            currentTrackIndex++;
+            playCurrentTrack();
+        }
+    }//GEN-LAST:event_playerNextActionPerformed
 
     /**
      * @param args the command line arguments
@@ -695,6 +1184,8 @@ public class MainGUI extends javax.swing.JFrame {
                 new MainGUI().setVisible(true);
             }
         });
+        
+        SwingUtilities.invokeLater(MainGUI::new);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -708,45 +1199,65 @@ public class MainGUI extends javax.swing.JFrame {
     private javax.swing.JButton Calc7;
     private javax.swing.JButton Calc8;
     private javax.swing.JButton Calc9;
-    private javax.swing.JButton CalcClear;
     private javax.swing.JButton CalcClose;
-    private javax.swing.JButton CalcDiv;
-    private javax.swing.JButton CalcEquals;
-    private javax.swing.JTextField CalcField;
-    private javax.swing.JButton CalcMinus;
-    private javax.swing.JButton CalcMod;
-    private javax.swing.JButton CalcMulti;
-    private javax.swing.JButton CalcPeriod;
-    private javax.swing.JButton CalcPlus;
-    private javax.swing.JButton CalcPower;
     private javax.swing.JLabel CalcTitle;
-    private javax.swing.JPanel CalcTitlebar;
     private javax.swing.JPanel Calculator;
     private javax.swing.JTextField Clock;
     private javax.swing.JPanel Notepad;
     private javax.swing.JButton NotepadClose;
     private javax.swing.JLabel NotepadTitle;
-    private javax.swing.JPanel NotepadTitlebar;
     private javax.swing.JPanel Player;
     private javax.swing.JButton PlayerClose;
     private javax.swing.JLabel PlayerTitle;
-    private javax.swing.JPanel PlayerTitlebar;
     private javax.swing.JPanel Taskbar;
     private javax.swing.JLabel Wallpaper;
+    private javax.swing.JButton album1Select;
+    private javax.swing.JButton album2Select;
+    private javax.swing.JButton calcClear;
+    private javax.swing.JButton calcDiv;
+    private javax.swing.JButton calcEquals;
+    private javax.swing.JTextField calcExpression;
+    private javax.swing.JTextField calcField;
+    private javax.swing.JButton calcMinus;
+    private javax.swing.JButton calcMod;
+    private javax.swing.JButton calcMulti;
+    private javax.swing.JButton calcPeriod;
+    private javax.swing.JButton calcPlus;
+    private javax.swing.JPanel calcTitlebar;
     private javax.swing.JButton calculatorBtn;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JButton musicBtn;
     private javax.swing.JButton notepadBtn;
-    private javax.swing.JButton paintBtn;
+    private javax.swing.JPanel notepadTitlebar;
+    private javax.swing.JButton player1Play;
+    private javax.swing.JLabel player1Song;
+    private javax.swing.JButton player2Play;
+    private javax.swing.JLabel player2Song;
+    private javax.swing.JButton player3Play;
+    private javax.swing.JLabel player3Song;
+    private javax.swing.JButton player4Play;
+    private javax.swing.JLabel player4Song;
+    private javax.swing.JButton player5Play;
+    private javax.swing.JLabel player5Song;
+    private javax.swing.JLabel playerArtist;
+    private javax.swing.JLabel playerArtwork;
+    private javax.swing.JButton playerNext;
+    private javax.swing.JButton playerPrev;
+    private javax.swing.JLabel playerRelease;
+    private javax.swing.JButton playerSelectbtn;
+    private javax.swing.JPanel playerSelector;
+    private javax.swing.JButton playerStop;
+    private javax.swing.JLabel playerTitle;
+    private javax.swing.JPanel playerTitlebar;
     private javax.swing.JButton startBtn;
+    private javax.swing.JPanel startMenu;
     private javax.swing.JButton wallpaperBtn;
     // End of variables declaration//GEN-END:variables
 }
